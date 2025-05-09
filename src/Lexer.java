@@ -18,7 +18,7 @@ public class Lexer {
     public List<Token> tokenize() {
         List<Token> tokens = new ArrayList<>();
         while (currentPosition < input.length()) {
-            char c = input.charAt(currentPosition);
+            char c = input.charAt(currentPosition++);
             switch (c) {
                 case ' ':
                 case '\r':
@@ -76,7 +76,7 @@ public class Lexer {
                     break;
 
                 case '<':
-                    if (followedBy('<')) {
+                    if (followedBy('-')) {
                         tokens.add(TokenFactory.makeToken(TokenType.ASSIGN, "<-", line));
                     } else if (followedBy('=')) {
                         tokens.add(TokenFactory.makeToken(TokenType.LE, "<=", line));
@@ -98,7 +98,7 @@ public class Lexer {
                         tokens.add(TokenFactory.makeToken(TokenType.NUMBER,
                                                             String.valueOf(c), line));
                     } else if (isAlphabetic(c)) {
-                        tokens.add(identify(c));
+                        tokens.add(identifier(c));
                     } else {
                         tokens.add(TokenFactory.makeToken(TokenType.ERROR,
                                                             String.valueOf(c), line));
@@ -119,7 +119,7 @@ public class Lexer {
         return true;
     }
 
-    private Token identify(char first) {
+    private Token identifier(char first) {
         StringBuilder sb = new StringBuilder();
         sb.append(first);
         while (currentPosition < input.length() &&
