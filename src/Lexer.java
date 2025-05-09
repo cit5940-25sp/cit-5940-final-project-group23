@@ -133,7 +133,7 @@ public class Lexer {
                 (isDigit(input.charAt(currentPosition)) ||
                         isAlphabetic(input.charAt(currentPosition)) ||
                         input.charAt(currentPosition) == '_')) {
-            sb.append(currentPosition++);
+            sb.append(input.charAt(currentPosition++));
         }
         return TokenFactory.identify(sb.toString(), line);
     }

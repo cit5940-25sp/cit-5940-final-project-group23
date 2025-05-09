@@ -24,4 +24,15 @@ public class LexerTest {
         assertEquals(TokenType.NUMBER, tokens.get(3).getType());
         assertEquals(TokenType.EOF, tokens.get(4).getType());
     }
+
+    @Test
+    public void test3() {
+        Lexer lexer = new Lexer("var x y1 function return");
+        List<Token> tokens = lexer.tokenize();
+        assertEquals(TokenType.VAR, tokens.get(0).getType());
+        assertEquals(TokenType.IDENTIFIER, tokens.get(1).getType());
+        assertEquals(TokenType.IDENTIFIER, tokens.get(2).getType());
+        assertEquals(TokenType.FUNCTION, tokens.get(3).getType());
+        assertEquals(TokenType.RETURN, tokens.get(4).getType());
+    }
 }
