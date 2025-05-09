@@ -3,6 +3,7 @@ public class TokenFactory {
         return new Token(type, value, line);
     }
 
+    // FIXME: Do we need these helper functions??
     public static Token number(String value, int line) {
         return makeToken(TokenType.NUMBER, value, line);
     }
