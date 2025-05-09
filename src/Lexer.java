@@ -95,8 +95,14 @@ public class Lexer {
 
                 default:
                     if (isDigit(c)) {
+                        StringBuilder num = new StringBuilder();
+                        num.append(c);
+                        while (currentPosition < input.length() &&
+                                isDigit(input.charAt(currentPosition))) {
+                            num.append(input.charAt(currentPosition++));
+                        }
                         tokens.add(TokenFactory.makeToken(TokenType.NUMBER,
-                                                            String.valueOf(c), line));
+                                num.toString(), line));
                     } else if (isAlphabetic(c)) {
                         tokens.add(identifier(c));
                     } else {
@@ -105,6 +111,7 @@ public class Lexer {
                     }
             }
         }
+        tokens.add(TokenFactory.makeToken(TokenType.EOF, "", line));
         return tokens;
     }
 
