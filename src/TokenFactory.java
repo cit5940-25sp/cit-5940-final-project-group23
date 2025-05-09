@@ -3,27 +3,6 @@ public class TokenFactory {
         return new Token(type, value, line);
     }
 
-    // FIXME: Do we need these helper functions??
-    public static Token number(String value, int line) {
-        return makeToken(TokenType.NUMBER, value, line);
-    }
-
-    public static Token comment(String value, int line) {
-        return makeToken(TokenType.COMMENT, value, line);
-    }
-
-    public static Token error(String value, int line) {
-        return makeToken(TokenType.ERROR, value, line);
-    }
-
-    public static Token eof(String value, int line) {
-        return makeToken(TokenType.EOF, value, line);
-    }
-
-    public static Token symbol(TokenType type, String value, int line) {
-        return makeToken(type, value, line);
-    }
-
     public static Token identify(String value, int line) {
         return switch (value) {
             case "var" -> makeToken(TokenType.VAR, value, line);
