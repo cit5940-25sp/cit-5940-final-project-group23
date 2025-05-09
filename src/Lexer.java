@@ -30,8 +30,30 @@ public class Lexer {
                 case ';': tokens.add(TokenFactory.makeToken(TokenType.SEMICOLON, ";", line)); break;
                 case ',': tokens.add(TokenFactory.makeToken(TokenType.COMMA, ",", line)); break;
 
+                case '-':
+                    if (followedBy('-') && followedBy('-')) {   // if is comment
+                        while (currentPosition < input.length() && input.charAt(currentPosition) != '\n' ) {
+                            char ignore = input.charAt(currentPosition++);
+                        }
+                    } else {    // if is minus sign
+                        tokens.add(TokenFactory.makeToken(TokenType.MINUS, "-", line));
+                    }
+                    break;
+
+
             }
         }
         return tokens;
+    }
+
+    private boolean followedBy(char target) {
+        if (currentPosition >= input.length()) {
+            return false;
+        }
+        if (input.charAt(currentPosition) != target) {
+            return false;
+        }
+        currentPosition++;
+        return true;
     }
 }
