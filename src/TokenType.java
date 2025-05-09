@@ -6,22 +6,22 @@ public enum TokenType {
     IDENTIFIER, NUMBER,
 
     // Arithmetic Operators
-    PLUS,       // +
-    MINUS,      // -
-    STAR,       // *
-    SLASH,      // /
-    MOD,        // %
+    PLUS,   // +
+    MINUS,  // -
+    STAR,   // *
+    SLASH,  // /
+    MOD,    // %
 
     // Relational Operators
-    LESS,       // <
-    LESS_EQUAL, // <=
-    GREATER,    // >
-    GREATER_EQUAL, // >=
-    EQUAL,      // =
-    NOT_EQUAL,  // ~
+    LT,     // <
+    LE,     // <=
+    GT,     // >
+    GE,     // >=
+    EQ,     // =
+    NE,     // ~
 
     // Assignment
-    ASSIGN,     // <-
+    ASSIGN, // <-
 
     // Delimiters
     COMMA,      // ,
