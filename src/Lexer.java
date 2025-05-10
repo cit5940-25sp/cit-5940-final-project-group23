@@ -1,8 +1,7 @@
-import java.util.ArrayList;
-import java.util.List;
-
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Lexer {
     private final String input;
