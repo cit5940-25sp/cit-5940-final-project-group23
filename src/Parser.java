@@ -1,8 +1,9 @@
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Parser that converts tokens into an abstract syntax tree.
+ * 
+ * So this represt a heirarchy of expressions.
  */
 public class Parser {
     private final List<Token> tokens;
