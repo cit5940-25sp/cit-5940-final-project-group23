@@ -3,14 +3,23 @@ import java.util.*;
 public class Environment {
     private final Deque<Map<String, Integer>> scopes = new ArrayDeque<>();
 
+    /**
+     * Construct an Environment.
+     */
     public Environment() {
         enterScope();
     }
 
+    /**
+     * Push an empty scope onto the stack.
+     */
     void enterScope() {
         scopes.push(new HashMap<>());
     }
 
+    /**
+     * Exit from a scope.
+     */
     void exitScope() {
         if (!scopes.isEmpty()) {
             scopes.pop();
@@ -19,6 +28,12 @@ public class Environment {
         }
     }
 
+    /**
+     * Handle variable declaration.
+     *
+     * @param name name of the variable
+     * @param value value of the variable
+     */
     void declare(String name, int value) {
         Map<String, Integer> scope = scopes.peek();
         if (scope == null) {
@@ -30,6 +45,12 @@ public class Environment {
         }
     }
 
+    /**
+     * Handle variable assignment.
+     *
+     * @param name name of the variable
+     * @param value value of the variable
+     */
     void assign(String name, int value) {
         Map<String, Integer> scope = scopes.peek();
         if (scope == null) {
@@ -41,6 +62,11 @@ public class Environment {
         }
     }
 
+    /**
+     * Look up the value of a variable.
+     *
+     * @param name name of the variable
+     */
     int lookup(String name) {
         for (Map<String, Integer> scope : scopes) {
             if (scope.containsKey(name)) {
