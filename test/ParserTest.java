@@ -274,4 +274,36 @@ public class ParserTest {
             assertTrue(true);
         }
     }
+    
+    @Test
+    public void testNestedFunctionCall() {
+
+        Expression expr = parseExpression("abs(-42)");
+        assertTrue("Should be a call expression", expr instanceof CallExpression);
+        
+        CallExpression call = (CallExpression) expr;
+        assertEquals("abs", call.getCallee());
+        assertEquals(1, call.getArguments().size());
+        assertTrue("Argument should be unary expression", call.getArguments().get(0) instanceof UnaryExpression);
+    }
+
+    @Test
+    public void testFunctionCallAsArgument() {
+        // Note: This needs to be parsed as an expression statement to test print
+        Statement stmt = parse("min(abs(-42))");
+        assertTrue("Should be an expression statement", stmt instanceof ExpressionStatement);
+        
+        Expression expr = ((ExpressionStatement) stmt).getExpression();
+        assertTrue("Should be a call expression", expr instanceof CallExpression);
+        
+        CallExpression printCall = (CallExpression) expr;
+        assertEquals("min", printCall.getCallee());
+        assertEquals(1, printCall.getArguments().size());
+        
+        Expression arg = printCall.getArguments().get(0);
+        assertTrue("Argument should be call expression", arg instanceof CallExpression);
+        
+        CallExpression absCall = (CallExpression) arg;
+        assertEquals("abs", absCall.getCallee());
+    }
 }
