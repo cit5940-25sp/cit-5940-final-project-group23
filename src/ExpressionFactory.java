@@ -48,14 +48,7 @@ public class ExpressionFactory {
     /**
      * Creates a function call expression.
      */
-    public static Expression createCall(Expression callee, List<Expression> arguments, int line) {
+    public static Expression createCall(String callee, List<Expression> arguments, int line) {
         return new CallExpression(callee, arguments, line);
-    }
-    
-    /**
-     * Creates an assignment expression.
-     */
-    public static Expression createAssignment(String name, Expression value, int line) {
-        return new AssignmentExpression(name, value, line);
     }
 }

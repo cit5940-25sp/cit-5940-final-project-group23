@@ -1,0 +1,7 @@
+function entry() {
+  print abs(-42);
+  print max(7, 13);
+  print min(-3, -5);
+  var x <- input;    --- a test comment
+  print x;
+}

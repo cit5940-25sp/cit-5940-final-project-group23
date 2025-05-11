@@ -1,0 +1,4 @@
+function entry() {
+  var x <- 42          --- no semicolon
+  print x;
+}

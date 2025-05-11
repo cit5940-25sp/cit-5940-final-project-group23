@@ -9,5 +9,6 @@ public enum ExpressionType {
     VARIABLE, // Variable references like x
     GROUP,    // Grouped expressions like (a + b)
     CALL,      // Function calls like foo(a, b)
-    ASSIGNMENT  // Variable assignment like x <- 5
+    ASSIGNMENT,  // Variable assignment like x <- 5
+    INPUT      // Input expression for reading user input
 }
