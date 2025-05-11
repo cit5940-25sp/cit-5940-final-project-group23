@@ -1,8 +1,24 @@
 public class TokenFactory {
+    /**
+     * Create a new token.
+     *
+     * @param type type of token
+     * @param value value of token
+     * @param line line number of token
+     * @return the new token
+     */
     public static Token makeToken(TokenType type, String value, Integer line) {
         return new Token(type, value, line);
     }
 
+    /**
+     * Determine if the string is a keyword or identifier,
+     * and make a token of the corresponding type
+     *
+     * @param value value of token
+     * @param line line number of token
+     * @return the new token
+     */
     public static Token identify(String value, int line) {
         return switch (value) {
             case "var" -> makeToken(TokenType.VAR, value, line);

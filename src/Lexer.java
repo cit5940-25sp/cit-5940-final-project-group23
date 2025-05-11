@@ -8,12 +8,22 @@ public class Lexer {
     private int currentPosition;
     private int line;
 
+    /**
+     * Initialize the Lexer class
+     *
+     * @param input the input string
+     */
     public Lexer(String input) {
         this.input = input;
         this.currentPosition = 0;
         this.line = 1;
     }
 
+    /**
+     * Convert the input into tokens.
+     *
+     * @return the list of tokens
+     */
     public List<Token> tokenize() {
         List<Token> tokens = new ArrayList<>();
         while (currentPosition < input.length()) {
@@ -93,7 +103,7 @@ public class Lexer {
                     break;
 
                 default:
-                    if (isDigit(c)) {
+                    if (isDigit(c)) {   // continue reading digits until the end of the number is reached
                         StringBuilder num = new StringBuilder();
                         num.append(c);
                         while (currentPosition < input.length() &&
@@ -104,7 +114,7 @@ public class Lexer {
                                 num.toString(), line));
                     } else if (isAlphabetic(c)) {
                         tokens.add(identifier(c));
-                    } else {
+                    } else {    // invalid content, generate error token
                         tokens.add(TokenFactory.makeToken(TokenType.ERROR,
                                                             String.valueOf(c), line));
                     }
@@ -114,6 +124,12 @@ public class Lexer {
         return tokens;
     }
 
+    /**
+     * Return whether the current char is followed by the target.
+     *
+     * @param target the target char
+     * @return whether the current char is followed by target
+     */
     private boolean followedBy(char target) {
         if (currentPosition >= input.length()) {
             return false;
@@ -125,6 +141,12 @@ public class Lexer {
         return true;
     }
 
+    /**
+     * Continue reading from first until a keyword or identifier token can be generated.
+     *
+     * @param first the first char
+     * @return the new token
+     */
     private Token identifier(char first) {
         StringBuilder sb = new StringBuilder();
         sb.append(first);

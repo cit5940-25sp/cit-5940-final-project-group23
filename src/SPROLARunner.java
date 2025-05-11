@@ -1,14 +1,20 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.*;
 
 public class SPROLARunner {
+    /**
+     * The main function for the program.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
-            throw new IllegalArgumentException("Expected exactly one argument");
+            System.err.println("Invalid number of arguments");
+            System.exit(1);
         }
+
         String path = args[0];
         String source = "";
         try {
