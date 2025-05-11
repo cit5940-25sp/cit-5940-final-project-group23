@@ -374,6 +374,9 @@ public class Parser {
         // Parse function body (a block of statements)
         consume(TokenType.LBRACE, "Expect '{' before function body.");
         List<Statement> body = block();
+
+        // Register the function in the symbol table
+        symbolTable.defineFunction(name.getValue(), parameters.size());
         
         return new FunctionDeclarationStatement(name.getValue(), parameters, body, name.getLine());
     }
