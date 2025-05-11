@@ -1,4 +1,4 @@
-function foo() {
+function entry() {
   var y <- 1;
   if (y = 1) {
     print y;

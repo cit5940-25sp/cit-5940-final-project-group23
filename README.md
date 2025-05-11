@@ -5,3 +5,6 @@
 ## References:
 1. [Step-by-Step: Building a Lexer in Java for Tokenizing Source Code](https://medium.com/@enzojade62/step-by-step-building-a-lexer-in-java-for-tokenizing-source-code-ac4f1d91326f)
 2. [Crafting Interpreters](https://craftinginterpreters.com/)
+3. [How To Parse Expressions: Prefix](https://www.youtube.com/watch?v=NbfoiJLRcdc)
+4. [Parse Expressions by Precedence Climbing](https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing)
+5. [Javadocs](https://www.jetbrains.com/help/idea/javadocs.html)

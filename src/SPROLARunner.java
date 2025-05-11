@@ -31,11 +31,12 @@ public class SPROLARunner {
 
             // Parsing
             Parser parser = new Parser(tokens);
-            ASTNode program = parser.parse();
+            Statement program = parser.parse();
 
             // Interpretation
             Interpreter interp = new Interpreter();
-            // TODO: insert interpreter entry point function
+            Object result = program.accept(interp);
+            System.out.println(result);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(4);
