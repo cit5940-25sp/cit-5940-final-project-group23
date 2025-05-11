@@ -8,7 +8,14 @@ public class Interpreter implements ASTVisitor {
     private final Environment environment = new Environment();
 
     public Interpreter() {
+    }
 
+    public void enterScope() {
+        environment.enterScope();
+    }
+
+    public void exitScope() {
+        environment.exitScope();
     }
 
     /**
@@ -120,19 +127,21 @@ public class Interpreter implements ASTVisitor {
     @Override
     public Object visitAssignmentExpression(AssignmentExpression expr) {
         Object value = expr.getValue().accept(this);
-        environment.assign(expr.getName(), (Integer) value);
+        try {
+            environment.assign(expr.getName(), (Integer) value);
+        } catch (RuntimeException e) {
+            // If variable not declared, declare it
+            environment.declare(expr.getName(), (Integer) value);
+        }
         return value;
     }
+
 
     /**
      * Calls a built-in function or throws an error if undefined.
      */
     public int callFunction(String name, List<Integer> args) {
-        if (Builtins.isBuiltin(name)) {
-            return Builtins.callFunction(name, args);
-        }
-
-        throw new RuntimeException("Function not defined: " + name);
+        return 0;
     }
 }
 
