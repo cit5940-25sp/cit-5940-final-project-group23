@@ -1,12 +1,9 @@
-/**
- * Represents a variable assignment expression.
- */
-public class AssignmentExpression extends Expression {
+public class VarAssignmentStatement extends Statement {
     private final String name;
     private final Expression value;
     
-    public AssignmentExpression(String name, Expression value, int line) {
-        super(ExpressionType.ASSIGNMENT, line);
+    public VarAssignmentStatement(String name, Expression value, int line) {
+        super(line);
         this.name = name;
         this.value = value;
     }
@@ -21,6 +18,6 @@ public class AssignmentExpression extends Expression {
     
     @Override
     public Object accept(ASTVisitor visitor) {
-        return visitor.visitAssignmentExpression(this);
+        return visitor.visitVarAssignmentStatement(this);
     }
 }

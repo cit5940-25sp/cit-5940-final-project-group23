@@ -1,55 +1,138 @@
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Parser that converts tokens into an abstract syntax tree.
- * 
- * So this represt a heirarchy of expressions.
+ * This is a recursive descent parser with symbol table validation.
  */
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
+    private final SymbolTable symbolTable;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
+        this.symbolTable = new SymbolTable();
+        this.current = 0;
     }
 
     /**
-     * Parse the tokens into an expression.
+     * Parse the tokens into a statement.
+     * @throws ParseError if there is a syntax error
      */
-    public Expression parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null; // Error handling here
+    public Statement parse() throws ParseError {
+        // let the error propagate
+        return statement();
+    }
+
+    /**
+     * Grammar rule: statement → varDeclaration | varAssignment | expressionStmt
+     */
+    private Statement statement() {
+        if (match(TokenType.VAR)) {
+            return varDeclaration();
         }
+        
+        // Check for assignments
+        if (check(TokenType.NUMBER) && checkAhead(1, TokenType.ASSIGN)) {
+            // This is an invalid assignment - don't consume tokens, just report error
+            throw error(peek(), "Left side of assignment must be a variable name");
+        }
+        
+        if (match(TokenType.IDENTIFIER) && check(TokenType.ASSIGN)) {
+            current--; // Go back to the identifier
+            return varAssignment();
+        }
+
+        return expressionStatement();
+    }
+
+    // Add this helper method
+    private boolean checkAhead(int distance, TokenType type) {
+        if (current + distance >= tokens.size()) return false;
+        return tokens.get(current + distance).getType() == type;
+    }
+
+    /**
+     * Grammar rule: varDeclaration → "var" varDeclarator ("," varDeclarator)* ";"
+     * varDeclarator → IDENTIFIER "<-" expression
+     */
+    private Statement varDeclaration() {
+        // Get the starting line number for the declaration
+        int line = previous().getLine();
+        
+        // Parse the first variable declarator
+        Token name = consume(TokenType.IDENTIFIER, "Expect variable name after 'var'.");
+        
+        // Check if variable is already defined in this scope
+        if (symbolTable.isDefined(name.getValue())) {
+            throw error(name, "Variable '" + name.getValue() + "' already declared in this scope.");
+        }
+        
+        consume(TokenType.ASSIGN, "Expect '<-' after variable name in declaration.");
+        Expression initializer = expression();
+        
+        // Register the variable in the symbol table
+        symbolTable.define(name.getValue());
+        
+        // Create a list to hold all the declarations
+        List<VarDeclarator> declarators = new ArrayList<>();
+        declarators.add(new VarDeclarator(name.getValue(), initializer));
+        
+        // Check for additional declarators
+        while (match(TokenType.COMMA)) {
+            // Parse the next variable declarator
+            name = consume(TokenType.IDENTIFIER, "Expect variable name after ','.");
+            
+            // Check if variable is already defined in this scope
+            if (symbolTable.isDefined(name.getValue())) {
+                throw error(name, "Variable '" + name.getValue() + "' already declared in this scope.");
+            }
+            
+            consume(TokenType.ASSIGN, "Expect '<-' after variable name in declaration.");
+            initializer = expression();
+            
+            // Register the variable in the symbol table
+            symbolTable.define(name.getValue());
+            
+            // Add to the list of declarators
+            declarators.add(new VarDeclarator(name.getValue(), initializer));
+        }
+        
+        return new VarDeclarationStatement(declarators, line);
+    }
+
+    /**
+     * Grammar rule: varAssignment → IDENTIFIER "<-" expression ";"
+     */
+    private Statement varAssignment() {
+        Token name = consume(TokenType.IDENTIFIER, "Expect variable name.");
+        
+        // Check if variable exists before allowing assignment
+        if (!symbolTable.isDefined(name.getValue())) {
+            throw error(name, "Cannot assign to undeclared variable '" + name.getValue() + "'.");
+        }
+        
+        consume(TokenType.ASSIGN, "Expect '<-' after variable name.");
+        Expression value = expression();
+
+        return new VarAssignmentStatement(name.getValue(), value, name.getLine());
+    }
+
+    /**
+     * Grammar rule: expressionStmt → expression ";"
+     */
+    private Statement expressionStatement() {
+        Expression expr = expression();
+        return new ExpressionStatement(expr, expr.getLine());
     }
 
     /**
      * Grammar rule: expression → equality
+     * this is the starting point of the expression parsing
      */
     private Expression expression() {
-        return assignment();
-    }
-
-    /**
-     * Grammar rule: assignment → equality ("<-" assignment)?
-     */
-    private Expression assignment() {
-        Expression expr = equality();
-
-        if (match(TokenType.ASSIGN)) {
-            Token equals = previous();
-            Expression value = assignment();
-
-            if (expr instanceof VariableExpression) {
-                String name = ((VariableExpression) expr).getName();
-                return ExpressionFactory.createAssignment(name, value, expr.getLine());
-            }
-
-            error(equals, "Invalid assignment target.");
-        }
-
-        return expr;
+        return equality();
     }
 
     /**
@@ -148,6 +231,7 @@ public class Parser {
 
     // Helper methods for parsing
 
+    // if there is a matching type, then it consumes it and return true
     private boolean match(TokenType... types) {
         for (TokenType type : types) {
             if (check(type)) {
@@ -158,16 +242,19 @@ public class Parser {
         return false;
     }
 
+    // if there is a matching type it consumes and return's the token
     private Token consume(TokenType type, String message) {
         if (check(type)) return advance();
         throw error(peek(), message);
     }
 
+    // check the current token type without consuming it 
     private boolean check(TokenType type) {
         if (isAtEnd()) return false;
         return peek().getType() == type;
     }
 
+    // returns the consumed token and moving the current token pointer to next token
     private Token advance() {
         if (!isAtEnd()) current++;
         return previous();
@@ -185,12 +272,25 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
+    /**
+     * Helper method for error reporting
+     */
     private ParseError error(Token token, String message) {
-        // Report the error
         System.err.println("[line " + token.getLine() + "] Error at '" + 
                           token.getValue() + "': " + message);
-        return new ParseError();
+        return new ParseError(message);
     }
 
-    private static class ParseError extends RuntimeException {}
+    /**
+     * Error class for parse errors
+     */
+    public static class ParseError extends RuntimeException {
+        public ParseError(String message) {
+            super(message);
+        }
+        
+        public ParseError() {
+            super();
+        }
+    }
 }

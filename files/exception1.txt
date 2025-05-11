@@ -1,0 +1,4 @@
+function entry() {
+  var z <- 10 / 0;        --- runtime error
+  print z;
+}

@@ -52,10 +52,5 @@ public class ExpressionFactory {
         return new CallExpression(callee, arguments, line);
     }
     
-    /**
-     * Creates an assignment expression.
-     */
-    public static Expression createAssignment(String name, Expression value, int line) {
-        return new AssignmentExpression(name, value, line);
-    }
+   
 }

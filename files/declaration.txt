@@ -1,0 +1,6 @@
+function entry() {
+  var p <- 10, q <- 2, r <- -3;
+  print p;
+  print q;
+  print r;
+}
