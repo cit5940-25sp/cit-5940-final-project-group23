@@ -60,6 +60,8 @@ public class Parser {
         }
         
         // Assignment check - check without consuming first
+
+        // this handles the the case so x <-5 wont produce a value
         if (check(TokenType.IDENTIFIER)) {
             // Look ahead to see if this is an assignment
             if (checkAhead(1, TokenType.ASSIGN)) {
@@ -342,27 +344,33 @@ public class Parser {
      */
     private Statement functionDeclaration() {
         Token name = consume(TokenType.IDENTIFIER, "Expect function name.");
-
         consume(TokenType.LPAREN, "Expect '(' after function name.");
-
+        
         List<String> parameters = new ArrayList<>();
         if (!check(TokenType.RPAREN)) {
             do {
                 parameters.add(consume(TokenType.IDENTIFIER, "Expect parameter name.").getValue());
             } while (match(TokenType.COMMA));
         }
-
+        
         consume(TokenType.RPAREN, "Expect ')' after parameters.");
-
         consume(TokenType.LBRACE, "Expect '{' before function body.");
-        List<Statement> body = block();
-
-        FunctionDeclarationStatement declaration = new FunctionDeclarationStatement(name.getValue(), parameters, body, name.getLine());
-
-        // ✅ Register the full function declaration, not just its arity
-        symbolTable.define(name.getValue(), declaration);
-
-        return declaration;
+        
+        // Enter function scope
+        symbolTable.enterScope();
+        
+        // Register parameters in the function scope
+        for (String param : parameters) {
+            symbolTable.defineVariable(param, null);
+        }
+        
+        try {
+            List<Statement> body = block();
+            return new FunctionDeclarationStatement(name.getValue(), parameters, body, name.getLine());
+        } finally {
+            // Exit function scope
+            symbolTable.exitScope();
+        }
     }
 
 
@@ -439,12 +447,20 @@ public class Parser {
     private List<Statement> block() {
         List<Statement> statements = new ArrayList<>();
         
-        while (!check(TokenType.RBRACE) && !isAtEnd()) {
-            statements.add(statement());
-        }
+        // Enter a new scope for this block
+        symbolTable.enterScope();
         
-        consume(TokenType.RBRACE, "Expect '}' after block.");
-        return statements;
+        try {
+            while (!check(TokenType.RBRACE) && !isAtEnd()) {
+                statements.add(statement());
+            }
+            
+            consume(TokenType.RBRACE, "Expect '}' after block.");
+            return statements;
+        } finally {
+            // Always exit the scope when leaving the block
+            symbolTable.exitScope();
+        }
     }
 
     // if there is a matching type it consumes and return's the token

@@ -258,6 +258,7 @@ public class Interpreter implements ASTVisitor {
 
     @Override
     public Object visitReturnStatement(ReturnStatement stmt) {
+        System.out.println("Return statement");
         int returnValue = (stmt.getValue() == null)
                 ? 0
                 : (Integer) stmt.getValue().accept(this);
