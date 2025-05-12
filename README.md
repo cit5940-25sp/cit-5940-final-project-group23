@@ -8,3 +8,6 @@
 3. [How To Parse Expressions: Prefix](https://www.youtube.com/watch?v=NbfoiJLRcdc)
 4. [Parse Expressions by Precedence Climbing](https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing)
 5. [Javadocs](https://www.jetbrains.com/help/idea/javadocs.html)
+6. [ASTNode](https://docs.spring.io/spring-shell/docs/current/api/org/springframework/shell/command/parser/AstNode.html)
+7. [Interpreter Tutorial in Python](https://www.youtube.com/watch?v=YYvBy0vqcSw)
+   
