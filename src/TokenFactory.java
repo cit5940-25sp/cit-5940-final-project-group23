@@ -13,7 +13,7 @@ public class TokenFactory {
 
     /**
      * Determine if the string is a keyword or identifier,
-     * and make a token of the corresponding type
+     * and make a token of the corresponding type.
      *
      * @param value value of token
      * @param line line number of token

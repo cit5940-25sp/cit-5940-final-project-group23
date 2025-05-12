@@ -3,7 +3,7 @@ public enum TokenType {
     VAR, FUNCTION, RETURN, IF, ELIF, ELSE, WHILE, RUN, PRINT, INPUT,
 
     // Literals
-    IDENTIFIER, NUMBER,
+    IDENTIFIER, NUMBER, // note: identifier includes MIN, MAX and ABS
 
     // Arithmetic Operators
     PLUS,   // +

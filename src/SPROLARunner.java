@@ -15,6 +15,7 @@ public class SPROLARunner {
             System.exit(1);
         }
 
+        // read the input file
         String path = args[0];
         String source = "";
         try {
@@ -49,7 +50,9 @@ public class SPROLARunner {
                     stmt.accept(interp);
                 }
             }
+            // call the entry function
             Object res = interp.callFunction("entry", Collections.emptyList());
+            // default is 0 if no return value
             System.out.println("Returned value: " + res);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

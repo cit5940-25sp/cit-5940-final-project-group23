@@ -103,7 +103,7 @@ public class Lexer {
                     break;
 
                 default:
-                    if (isDigit(c)) {   // continue reading digits until the end of the number is reached
+                    if (isDigit(c)) {   // continue reading digits until end of number
                         StringBuilder num = new StringBuilder();
                         num.append(c);
                         while (currentPosition < input.length() &&
