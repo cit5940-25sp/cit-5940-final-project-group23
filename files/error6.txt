@@ -1,0 +1,15 @@
+function entry() {
+  var n <- 5;
+  var f <- factorial(n);
+  print f;          --- should print 120
+  print s;          --- should be outof scope
+}
+
+function factorial(x) {
+  var s <- 5;
+  if (x = 0) {
+    return 1;
+  } else {
+    return x * factorial(x - 1);
+  }
+}

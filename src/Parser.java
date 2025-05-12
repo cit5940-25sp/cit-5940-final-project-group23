@@ -126,7 +126,8 @@ public class Parser {
             declarators.add(new VarDeclarator(name.getValue(), initializer));
         }
         consume(TokenType.SEMICOLON, "Expect ';' after value in variable declaration.");
-        return new VarDeclarationStatement(declarators, line);
+        
+        return StatementFactory.createVarDeclaration(declarators, line);
     }
 
     /**
@@ -143,7 +144,8 @@ public class Parser {
         consume(TokenType.ASSIGN, "Expect '<-' after variable name.");
         Expression value = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after assignment.");
-        return new VarAssignmentStatement(name.getValue(), value, name.getLine());
+        return StatementFactory.createVarAssignment(name.getValue(), value, name.getLine());
+        
     }
     /**
     * Grammar rule: printStmt → "print" expression
@@ -154,7 +156,7 @@ public class Parser {
         // Print is followed directly by an expression
         Expression value = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after value in print statement.");
-        return new PrintStatement(value, keyword.getLine());
+        return StatementFactory.createPrint(value, keyword.getLine());
     }
 
 
@@ -164,7 +166,7 @@ public class Parser {
     private Statement expressionStatement() {
         Expression expr = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after expression.");
-        return new ExpressionStatement(expr, expr.getLine());
+        return StatementFactory.createExpression(expr, expr.getLine());
     }
 
     /**
@@ -251,28 +253,32 @@ public class Parser {
 
     /**
      * Grammar rule: primary → NUMBER | IDENTIFIER | "(" expression ")" | call
-     * call → IDENTIFIER "(" arguments? ")"
      */
     private Expression primary() {
         if (match(TokenType.NUMBER)) {
             return ExpressionFactory.createNumberLiteral(previous().getValue(), previous().getLine());
         }
         
-        //checking for input call
         if (match(TokenType.INPUT)) {
             return new InputExpression(previous().getLine());
         }
         
         if (match(TokenType.IDENTIFIER)) {
             Token token = previous();
+            String name = token.getValue();
 
             // Check if this is a function call
             if (check(TokenType.LPAREN)) {
                 return finishCall(token);
             }
             
+            // Check if variable is in scope before allowing reference
+            if (!symbolTable.isDefined(name)) {
+                throw error(token, "Variable '" + name + "' referenced before declaration or out of scope.");
+            }
+            
             // Otherwise it's a variable reference
-            return ExpressionFactory.createVariable(token.getValue(), token.getLine());
+            return ExpressionFactory.createVariable(name, token.getLine());
         }
 
         if (match(TokenType.LPAREN)) {
@@ -366,7 +372,8 @@ public class Parser {
         
         try {
             List<Statement> body = block();
-            return new FunctionDeclarationStatement(name.getValue(), parameters, body, name.getLine());
+            
+            return StatementFactory.createFunction(name.getValue(), parameters, body, name.getLine());
         } finally {
             // Exit function scope
             symbolTable.exitScope();
@@ -407,7 +414,7 @@ public class Parser {
             elseBranch = block();
         }
         
-        return new IfStatement(condition, thenBranch, elifConditions, elifBranches, elseBranch, keyword.getLine());
+        return StatementFactory.createIf(condition, thenBranch, elifConditions, elifBranches, elseBranch, keyword.getLine());
     }
 
     /**
@@ -422,7 +429,7 @@ public class Parser {
             value = expression();
         }
         consume(TokenType.SEMICOLON, "Expect ';' after return value.");
-        return new ReturnStatement(value, keyword.getLine());
+        return StatementFactory.createReturn(value, keyword.getLine());
     }
 
     // Helper methods for parsing
