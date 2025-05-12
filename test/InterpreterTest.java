@@ -27,6 +27,35 @@ public class InterpreterTest extends Interpreter {
     }
 
     @Test
+    public void testScopeShadowing() {
+        // Outer scope
+        interpreter.environment.declare("a", 1);
+        assertEquals(1, interpreter.environment.lookup("a"));
+
+        // Enter inner scope and shadow 'a'
+        interpreter.enterScope();
+        interpreter.environment.declare("a", 2);
+        assertEquals(2, interpreter.environment.lookup("a"));
+
+        // Exit inner scope, original 'a' should be restored
+        interpreter.exitScope();
+        assertEquals(1, interpreter.environment.lookup("a"));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testExitRemovesInnerVariable() {
+        // Enter a new scope
+        interpreter.enterScope();
+        // Declare 'x' only in the inner scope
+        interpreter.environment.declare("x", 5);
+        assertEquals(5, interpreter.environment.lookup("x"));
+
+        // Exit the inner scope; lookup should now fail
+        interpreter.exitScope();
+        interpreter.environment.lookup("x"); // should throw RuntimeException
+    }
+
+    @Test
     public void testArithmetic() {
         Expression plus = new BinaryExpression(
                 new LiteralExpression(5, 1), TokenType.PLUS, new LiteralExpression(3, 1), 1);
@@ -168,8 +197,33 @@ public class InterpreterTest extends Interpreter {
     }
 
     @Test
+    public void testIfStatementElifBranch() {
+        interpreter.environment.declare("b", 0);
+        Expression cond = new LiteralExpression(0, 1);
+        Expression elifCond = new LiteralExpression(1, 1);
+        Statement elifStmt = new VarAssignmentStatement(
+                "b",
+                new LiteralExpression(9, 1),
+                1
+        );
+
+        IfStatement ifStmt = new IfStatement(
+                cond,
+                List.of(),
+                List.of(elifCond),
+                List.of(List.of(elifStmt)),
+                List.of(),
+                1
+        );
+
+        ifStmt.accept(interpreter);
+        assertEquals(9, interpreter.environment.lookup("b"));
+    }
+
+
+
+    @Test
     public void testIfStatementElseBranch() {
-        // if (0) then ... else b <- 9
         interpreter.environment.declare("b", 0);
         Expression cond = new LiteralExpression(0,1);
         Statement elseStmt = new VarAssignmentStatement(
