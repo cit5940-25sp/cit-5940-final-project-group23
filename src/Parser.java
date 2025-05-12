@@ -9,6 +9,8 @@ public class Parser {
     private final List<Token> tokens;
     private int current;
     private final SymbolTable symbolTable;
+    
+  
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -186,7 +188,7 @@ public class Parser {
         while (match(TokenType.EQ, TokenType.NE)) {
             TokenType operator = previous().getType();
             Expression right = comparison();
-            expr = ExpressionFactory.createBinary(expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -201,7 +203,7 @@ public class Parser {
         while (match(TokenType.LT, TokenType.LE, TokenType.GT, TokenType.GE)) {
             TokenType operator = previous().getType();
             Expression right = term();
-            expr = ExpressionFactory.createBinary(expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -216,7 +218,7 @@ public class Parser {
         while (match(TokenType.PLUS, TokenType.MINUS)) {
             TokenType operator = previous().getType();
             Expression right = factor();
-            expr = ExpressionFactory.createBinary(expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -231,7 +233,7 @@ public class Parser {
         while (match(TokenType.STAR, TokenType.SLASH, TokenType.MOD)) {
             TokenType operator = previous().getType();
             Expression right = unary();
-            expr = ExpressionFactory.createBinary(expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -245,7 +247,7 @@ public class Parser {
         if (match(TokenType.MINUS)) {
             TokenType operator = previous().getType();
             Expression right = unary();
-            return ExpressionFactory.createUnary(operator, right, right.getLine());
+            return ExpressionFactory.create("unary", operator, right, right.getLine());
         }
 
         return primary();
@@ -256,11 +258,11 @@ public class Parser {
      */
     private Expression primary() {
         if (match(TokenType.NUMBER)) {
-            return ExpressionFactory.createNumberLiteral(previous().getValue(), previous().getLine());
+            return ExpressionFactory.create("literal", previous().getValue(), previous().getLine());
         }
         
         if (match(TokenType.INPUT)) {
-            return new InputExpression(previous().getLine());
+            return ExpressionFactory.create("input", previous().getLine());
         }
         
         if (match(TokenType.IDENTIFIER)) {
@@ -278,13 +280,13 @@ public class Parser {
             }
             
             // Otherwise it's a variable reference
-            return ExpressionFactory.createVariable(name, token.getLine());
+            return ExpressionFactory.create("variable", name, token.getLine());
         }
 
         if (match(TokenType.LPAREN)) {
             Expression expr = expression();
             consume(TokenType.RPAREN, "Expect ')' after expression.");
-            return ExpressionFactory.createGroup(expr, expr.getLine());
+             return ExpressionFactory.create("group", expr, expr.getLine());
         }
 
         throw error(peek(), "Expected expression.");
@@ -305,8 +307,9 @@ public class Parser {
         
         consume(TokenType.RPAREN, "Expect ')' after arguments.");
 
-        return ExpressionFactory.createCall(callee.getValue(), arguments, callee.getLine());
+       return ExpressionFactory.create("call", callee.getValue(), arguments, callee.getLine());
     }
+
 
     /**
      * Grammar rule: runStmt → "run" block "while" "(" expression ")"
