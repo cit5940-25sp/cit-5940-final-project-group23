@@ -49,7 +49,8 @@ public class SPROLARunner {
                     stmt.accept(interp);
                 }
             }
-            interp.callFunction("entry", Collections.emptyList());
+            Object res = interp.callFunction("entry", Collections.emptyList());
+            System.out.println("Returned value: " + res);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(4);

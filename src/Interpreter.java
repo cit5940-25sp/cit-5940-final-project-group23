@@ -287,30 +287,39 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
-    public void callFunction(String name, List<Integer> args) {
+    public Object callFunction(String name, List<Integer> args) {
+        // 1) Built-ins first
         if (Builtins.isBuiltin(name)) {
-            Builtins.callFunction(name, args);
-            return;
-        }
-        FunctionDeclarationStatement function = symbolTable.lookup(name);
-        if (function == null) {
-            throw new RuntimeException("Function not defined: " + name);
-        }
-        if (function.getParameters().size() != args.size()) {
-            throw new RuntimeException("Argument count mismatch in call to: " + name);
+            return Builtins.callFunction(name, args);
         }
 
+        // 2) User function lookup
+        FunctionDeclarationStatement fn = symbolTable.lookup(name);
+        if (fn == null) throw new RuntimeException("Function not defined: " + name);
+        if (fn.getParameters().size() != args.size())
+            throw new RuntimeException("Argument count mismatch in call to: " + name);
+
+        // 3) Enter a new scope & bind parameters
         environment.enterScope();
         for (int i = 0; i < args.size(); i++) {
-            environment.declare(function.getParameters().get(i), args.get(i));
+            environment.declare(fn.getParameters().get(i), args.get(i));
         }
 
-        for (Statement stmt : function.getBody()) {
-            stmt.accept(this);
-            if (stmt instanceof ReturnStatement) {
-                break;
+        // 4) Execute body, catching Return to get its value
+        Object result;
+        try {
+            for (Statement stmt : fn.getBody()) {
+                stmt.accept(this);
             }
+            // if we fall off the end, default 0
+            result = 0;
+        } catch (Return r) {
+            result = r.value;
+        } finally {
+            // 5) always pop the scope
+            environment.exitScope();
         }
-        environment.exitScope();
+
+        return result;
     }
 }

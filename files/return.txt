@@ -1,0 +1,4 @@
+function entry() {
+    var a <- 1;
+    return a;
+}
