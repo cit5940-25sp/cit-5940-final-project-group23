@@ -2,8 +2,41 @@ import java.util.List;
 
 /**
  * Factory class for creating Statement nodes in the AST.
+ * This class centralizes the decision logic for creating different types of statements.
  */
 public class StatementFactory {
+    
+    /**
+     * Create an appropriate statement based on the type.
+     * This method centralizes the decision logic for statement creation.
+     */
+    public static Statement create(String statementType, Object... args) {
+        switch (statementType) {
+            case "varDeclaration":
+                return createVarDeclaration((List<VarDeclarator>)args[0], (Integer)args[1]);
+            case "varAssignment":
+                return createVarAssignment((String)args[0], (Expression)args[1], (Integer)args[2]);
+            case "print":
+                return createPrint((Expression)args[0], (Integer)args[1]);
+            case "expression":
+                return createExpression((Expression)args[0], (Integer)args[1]);
+            case "function":
+                return createFunction((String)args[0], (List<String>)args[1], (List<Statement>)args[2], (Integer)args[3]);
+            case "if":
+                return createIf((Expression)args[0], (List<Statement>)args[1], 
+                               (List<Expression>)args[2], (List<List<Statement>>)args[3], 
+                               (List<Statement>)args[4], (Integer)args[5]);
+            case "while":
+                return createWhile((Expression)args[0], (List<Statement>)args[1], (Integer)args[2]);
+            case "run":
+                return createRun((List<Statement>)args[0], (Expression)args[1], (Integer)args[2]);
+            case "return":
+                return createReturn((Expression)args[0], (Integer)args[1]);
+            default:
+                throw new IllegalArgumentException("Unknown statement type: " + statementType);
+        }
+    }
+    
     /**
      * Creates a variable declaration statement.
      */
@@ -43,9 +76,8 @@ public class StatementFactory {
      * Creates an if statement.
      */
     public static Statement createIf(Expression condition, List<Statement> thenBranch, 
-                                     List<Expression> elifConditions,
-                                     List<List<Statement>> elifBranches,
-                                     List<Statement> elseBranch, int line) {
+                                   List<Expression> elifConditions, List<List<Statement>> elifBranches,
+                                   List<Statement> elseBranch, int line) {
         return new IfStatement(condition, thenBranch, elifConditions, elifBranches, elseBranch, line);
     }
     
