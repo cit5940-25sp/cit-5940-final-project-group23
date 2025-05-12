@@ -52,14 +52,14 @@ public class Environment {
      * @param value value of the variable
      */
     void assign(String name, int value) {
-        Map<String, Integer> scope = scopes.peek();
-        if (scope == null) {
-            throw new IllegalStateException("No existing scope!");
-        } else if (!scope.containsKey(name)) {
-            throw new RuntimeException("Variable not found!");
-        } else {
-            scope.put(name, value);
+        // Try each scope, innermost first
+        for (Map<String,Integer> scope : scopes) {
+            if (scope.containsKey(name)) {
+                scope.put(name, value);
+                return;
+            }
         }
+        throw new RuntimeException("Undefined variable '" + name + "'");
     }
 
     /**

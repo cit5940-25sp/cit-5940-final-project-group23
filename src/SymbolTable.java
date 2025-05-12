@@ -10,7 +10,7 @@ public class SymbolTable {
     }
 
     public boolean isDefined(String name) {
-        return functions.containsKey(name);
+        return functions.containsKey(name) || symbols.containsKey(name);
     }
 
     public FunctionDeclarationStatement lookup(String name) {

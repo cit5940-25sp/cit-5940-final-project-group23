@@ -50,8 +50,7 @@ public class SPROLARunner {
                     stmt.accept(interp);
                 }
             }
-            int result = interp.callFunction("entry", Collections.emptyList());
-            System.out.println("Program returned: " + result);
+            interp.callFunction("entry", Collections.emptyList());
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(4);

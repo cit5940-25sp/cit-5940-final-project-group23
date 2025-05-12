@@ -165,12 +165,8 @@ public class Interpreter implements ASTVisitor {
      * @return null (assignment does not generate new variable)
      */
     public Object visitVarAssignmentStatement(VarAssignmentStatement stmt) {
-        Object value = stmt.getValue().accept(this);
-        try {
-            environment.assign(stmt.getName(), (Integer) value);
-        } catch (RuntimeException e) {
-            environment.declare(stmt.getName(), (Integer) value); //Declare if not already declared
-        }
+        int value = (Integer) stmt.getValue().accept(this);
+        environment.assign(stmt.getName(), value);
         return null;
     }
 

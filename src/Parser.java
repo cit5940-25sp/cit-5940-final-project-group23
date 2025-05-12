@@ -327,7 +327,7 @@ public class Parser {
         consume(TokenType.LPAREN, "Expect '(' after 'while'.");
         Expression condition = expression();
         consume(TokenType.RPAREN, "Expect ')' after condition.");
-        
+        consume(TokenType.SEMICOLON, "Expect ';' after run-while loop.");
         return new RunStatement(body, condition, keyword.getLine());
     }
 
