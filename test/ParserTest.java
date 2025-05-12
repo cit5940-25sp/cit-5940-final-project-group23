@@ -218,7 +218,7 @@ public class ParserTest {
     @Test
     public void testSyntaxErrorFile() {
         try {
-            String content = new String(Files.readAllBytes(Paths.get("files/syntax_error2.txt")));
+            String content = new String(Files.readAllBytes(Paths.get("files/error2.txt")));
             List<Token> tokens = tokenize(content);
             
             // Check tokens are correctly lexed
@@ -245,7 +245,7 @@ public class ParserTest {
     @Test
     public void testMissingClosingParen() {
         try {
-            parseExpression("(2 + 3");
+            parseExpression("(2 + 3;");
             fail("Should have thrown a parse error");
         } catch (Exception e) {
             // Expected - should report missing closing parenthesis
@@ -256,7 +256,7 @@ public class ParserTest {
     @Test
     public void testInvalidAssignmentTarget() {
         try {
-            parse("5 <- 10");
+            parse("5 <- 10;");
             fail("Should have thrown a parse error for invalid assignment target");
         } catch (Exception e) {
             // Expected - should report invalid assignment target
