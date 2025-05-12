@@ -7,7 +7,7 @@ import java.util.List;
  */
 public class Parser {
     private final List<Token> tokens;
-    private int current = 0;
+    private int current;
     private final SymbolTable symbolTable;
 
     public Parser(List<Token> tokens) {
