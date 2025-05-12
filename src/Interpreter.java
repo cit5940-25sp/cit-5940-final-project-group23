@@ -228,7 +228,6 @@ public class Interpreter implements ASTVisitor {
         environment.exitScope();
     }
 
-    // FIXME
     public static class Return extends RuntimeException {
         public final int value;
         public Return(int value) {
