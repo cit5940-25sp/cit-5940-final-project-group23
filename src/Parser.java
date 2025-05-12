@@ -127,7 +127,7 @@ public class Parser {
             symbolTable.defineVariable(name.getValue(), null);
             declarators.add(new VarDeclarator(name.getValue(), initializer));
         }
-
+        consume(TokenType.SEMICOLON, "Expect ';' after value in variable declaration.");
         return new VarDeclarationStatement(declarators, line);
     }
 
@@ -144,7 +144,7 @@ public class Parser {
         
         consume(TokenType.ASSIGN, "Expect '<-' after variable name.");
         Expression value = expression();
-
+        consume(TokenType.SEMICOLON, "Expect ';' after assignment.");
         return new VarAssignmentStatement(name.getValue(), value, name.getLine());
     }
     /**
@@ -155,7 +155,7 @@ public class Parser {
         
         // Print is followed directly by an expression
         Expression value = expression();
-        
+        consume(TokenType.SEMICOLON, "Expect ';' after value in print statement.");
         return new PrintStatement(value, keyword.getLine());
     }
 
@@ -166,6 +166,7 @@ public class Parser {
     private Statement expressionStatement() {
         Expression expr = expression();
         System.out.println("TRACE: expressionStatement() called");
+        consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         return new ExpressionStatement(expr, expr.getLine());
     }
 
@@ -423,7 +424,7 @@ public class Parser {
         if (!check(TokenType.SEMICOLON)) {
             value = expression();
         }
-        
+        consume(TokenType.SEMICOLON, "Expect ';' after return value.");
         return new ReturnStatement(value, keyword.getLine());
     }
 
@@ -475,7 +476,7 @@ public class Parser {
         return previous();
     }
 
-    private boolean isAtEnd() {
+    boolean isAtEnd() {
         return peek().getType() == TokenType.EOF;
     }
 

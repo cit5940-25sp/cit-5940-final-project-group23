@@ -1,0 +1,3 @@
+function entry() {
+  print abs(-42);
+}

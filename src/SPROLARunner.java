@@ -10,6 +10,7 @@ public class SPROLARunner {
      * @param args command line arguments
      */
     public static void main(String[] args) {
+        System.out.println(args.length);
         if (args.length != 1) {
             System.err.println("Invalid number of arguments");
             System.exit(1);
@@ -20,7 +21,7 @@ public class SPROLARunner {
         try {
             source = new String(Files.readAllBytes(Paths.get(path)));
         } catch (IOException e) {
-            System.err.println("Failed to read file");
+            System.err.println("Failed to read file" + e);
             System.exit(2);
         }
 
@@ -31,12 +32,26 @@ public class SPROLARunner {
 
             // Parsing
             Parser parser = new Parser(tokens);
-            Statement program = parser.parse();
+            List<Statement> program = new ArrayList<>();
+            while (!parser.isAtEnd()) {
+                Statement stmt = parser.parse();
+                program.add(stmt);
+            }
 
             // Interpretation
             Interpreter interp = new Interpreter();
-            Object result = program.accept(interp);
-            System.out.println(result);
+            for (Statement stmt : program) {
+                if (stmt instanceof FunctionDeclarationStatement) {
+                    stmt.accept(interp);
+                }
+            }
+            for (Statement stmt : program) {
+                if (!(stmt instanceof FunctionDeclarationStatement)) {
+                    stmt.accept(interp);
+                }
+            }
+            int result = interp.callFunction("entry", Collections.emptyList());
+            System.out.println("Program returned: " + result);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(4);
