@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class Parser {
     private final List<Token> tokens;
+    private int current = 0;
     private final SymbolTable symbolTable;
 
     public Parser(List<Token> tokens) {
@@ -305,7 +306,8 @@ public class Parser {
             } while (match(TokenType.COMMA));
         }
         
-        consume(TokenType.RPAREN, "Expect ')' after arguments.");
+        Token paren = consume(TokenType.RPAREN, "Expect ')' after arguments.");
+
         return ExpressionFactory.createCall(callee.getValue(), arguments, callee.getLine());
     }
 
@@ -501,6 +503,10 @@ public class Parser {
     public static class ParseError extends RuntimeException {
         public ParseError(String message) {
             super(message);
+        }
+
+        public ParseError() {
+            super();
         }
     }
 }

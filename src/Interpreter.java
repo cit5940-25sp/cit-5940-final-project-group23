@@ -34,20 +34,32 @@ public class Interpreter implements ASTVisitor {
         int l = (int) left;
         int r = (int) right;
 
-        return switch (expr.getOperator()) {
-            case PLUS -> l + r;
-            case MINUS -> l - r;
-            case STAR -> l * r;
-            case SLASH -> l / r;
-            case MOD -> l % r;
-            case EQ -> l == r ? 1 : 0;
-            case NE -> l != r ? 1 : 0;
-            case LT -> l < r ? 1 : 0;
-            case LE -> l <= r ? 1 : 0;
-            case GT -> l > r ? 1 : 0;
-            case GE -> l >= r ? 1 : 0;
-            default -> throw new RuntimeException("Unknown binary operator: " + expr.getOperator());
-        };
+        switch (expr.getOperator()) {
+            case PLUS:
+                return l + r;
+            case MINUS:
+                return l - r;
+            case STAR:
+                return l * r;
+            case SLASH:
+                return l / r;
+            case MOD:
+                return l % r;
+            case EQ:
+                return l == r ? 1 : 0;
+            case NE:
+                return l != r ? 1 : 0;
+            case LT:
+                return l < r ? 1 : 0;
+            case LE:
+                return l <= r ? 1 : 0;
+            case GT:
+                return l > r ? 1 : 0;
+            case GE:
+                return l >= r ? 1 : 0;
+            default:
+                throw new RuntimeException("Unknown binary operator: " + expr.getOperator());
+        }
     }
 
     /**
