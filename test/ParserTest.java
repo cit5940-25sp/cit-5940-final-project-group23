@@ -32,7 +32,7 @@ public class ParserTest {
     
     @Test
     public void testPrimary_Number() {
-        Expression expr = parseExpression("42");
+        Expression expr = parseExpression("42;");
         assertTrue("Should be a literal expression", expr instanceof LiteralExpression);
         assertEquals(42, ((LiteralExpression) expr).getValue());
     }
@@ -41,7 +41,7 @@ public class ParserTest {
     
     @Test
     public void testPrimary_Group() {
-        Expression expr = parseExpression("(42)");
+        Expression expr = parseExpression("(42);");
         assertTrue("Should be a group expression", expr instanceof GroupExpression);
         Expression inner = ((GroupExpression) expr).getExpression();
         assertTrue("Inner should be literal", inner instanceof LiteralExpression);
@@ -50,7 +50,7 @@ public class ParserTest {
     
     @Test
     public void testUnary() {
-        Expression expr = parseExpression("-42");
+        Expression expr = parseExpression("-42;");
         assertTrue("Should be a unary expression", expr instanceof UnaryExpression);
         UnaryExpression unary = (UnaryExpression) expr;
         assertEquals(TokenType.MINUS, unary.getOperator());
@@ -59,7 +59,7 @@ public class ParserTest {
     
     @Test
     public void testFactor() {
-        Expression expr = parseExpression("2 * 3");
+        Expression expr = parseExpression("2 * 3;");
         assertTrue("Should be a binary expression", expr instanceof BinaryExpression);
         BinaryExpression binary = (BinaryExpression) expr;
         assertEquals(TokenType.STAR, binary.getOperator());
@@ -67,7 +67,7 @@ public class ParserTest {
     
     @Test
     public void testTerm() {
-        Expression expr = parseExpression("2 + 3");
+        Expression expr = parseExpression("2 + 3;");
         assertTrue("Should be a binary expression", expr instanceof BinaryExpression);
         BinaryExpression binary = (BinaryExpression) expr;
         assertEquals(TokenType.PLUS, binary.getOperator());
@@ -75,7 +75,7 @@ public class ParserTest {
     
     @Test
     public void testComparison() {
-        Expression expr = parseExpression("2 < 3");
+        Expression expr = parseExpression("2 < 3;");
         assertTrue("Should be a binary expression", expr instanceof BinaryExpression);
         BinaryExpression binary = (BinaryExpression) expr;
         assertEquals(TokenType.LT, binary.getOperator());
@@ -83,7 +83,7 @@ public class ParserTest {
     
     @Test
     public void testEquality() {
-        Expression expr = parseExpression("2 = 3");
+        Expression expr = parseExpression("2 = 3;");
         assertTrue("Should be a binary expression", expr instanceof BinaryExpression);
         BinaryExpression binary = (BinaryExpression) expr;
         assertEquals(TokenType.EQ, binary.getOperator());
@@ -94,7 +94,7 @@ public class ParserTest {
     @Test
     public void testComplexExpression() {
         // (2 + 3) * 4 - -5
-        Expression expr = parseExpression("(2 + 3) * 4 - -5");
+        Expression expr = parseExpression("(2 + 3) * 4 - -5;");
         assertTrue("Should be a binary expression", expr instanceof BinaryExpression);
         BinaryExpression binary = (BinaryExpression) expr;
         assertEquals(TokenType.MINUS, binary.getOperator());
@@ -112,7 +112,7 @@ public class ParserTest {
     
     @Test
     public void testVarDeclaration() {
-        Statement stmt = parse("var x <- 42");
+        Statement stmt = parse("var x <- 42;");
         assertTrue("Should be a var declaration", stmt instanceof VarDeclarationStatement);
         VarDeclarationStatement decl = (VarDeclarationStatement) stmt;
         
@@ -133,7 +133,7 @@ public class ParserTest {
     public void testVarAssignmentError() {
         // This should fail because x hasn't been declared
         try {
-            parse("x <- 42");
+            parse("x <- 42;");
             fail("Should have thrown an error for undeclared variable");
         } catch (Exception e) {
             assertTrue("Should report appropriate error", 
@@ -171,7 +171,7 @@ public class ParserTest {
     
     @Test
     public void testMultipleVarDeclaration() {
-        Statement stmt = parse("var price <- 10, tax <- 8, discount <- -3");
+        Statement stmt = parse("var price <- 10, tax <- 8, discount <- -3;");
         assertTrue("Should be a var declaration", stmt instanceof VarDeclarationStatement);
         
         VarDeclarationStatement decl = (VarDeclarationStatement) stmt;
@@ -197,7 +197,7 @@ public class ParserTest {
     @Test
     public void testValidFile() {
         try {
-            String content = new String(Files.readAllBytes(Paths.get("d:\\cit594\\cit-5940-final-project-group23\\files\\builtins.txt")));
+            String content = new String(Files.readAllBytes(Paths.get("files/builtins.txt")));
             List<Token> tokens = tokenize(content);
             
             // Check tokens are correctly lexed
@@ -218,7 +218,7 @@ public class ParserTest {
     @Test
     public void testSyntaxErrorFile() {
         try {
-            String content = new String(Files.readAllBytes(Paths.get("d:\\cit594\\cit-5940-final-project-group23\\files\\syntax_error2.txt")));
+            String content = new String(Files.readAllBytes(Paths.get("files/syntax_error2.txt")));
             List<Token> tokens = tokenize(content);
             
             // Check tokens are correctly lexed
@@ -278,7 +278,7 @@ public class ParserTest {
     @Test
     public void testNestedFunctionCall() {
 
-        Expression expr = parseExpression("abs(-42)");
+        Expression expr = parseExpression("abs(-42);");
         assertTrue("Should be a call expression", expr instanceof CallExpression);
         
         CallExpression call = (CallExpression) expr;
@@ -290,7 +290,7 @@ public class ParserTest {
     @Test
     public void testFunctionCallAsArgument() {
         // Note: This needs to be parsed as an expression statement to test print
-        Statement stmt = parse("min(abs(-42))");
+        Statement stmt = parse("min(abs(-42));");
         assertTrue("Should be an expression statement", stmt instanceof ExpressionStatement);
         
         Expression expr = ((ExpressionStatement) stmt).getExpression();
