@@ -66,7 +66,7 @@ public class Interpreter implements ASTVisitor {
     }
 
     /**
-     * visit the value of a literal expression.
+     * Visit the value of a literal expression.
      *
      * @param expr literal expression variable
      * @return the value of literal expression
@@ -183,6 +183,9 @@ public class Interpreter implements ASTVisitor {
         environment.exitScope();
     }
 
+    /**
+     * Exception used for early return control flow in functions.
+     */
     public static class Return extends RuntimeException {
         public final int value;
         public Return(int value) {
@@ -192,7 +195,7 @@ public class Interpreter implements ASTVisitor {
     }
 
     /**
-     * Evaluate if statement
+     * Evaluate if statement.
      *
      * @param stmt if statement var
      * @return null (if is an action, and does not generate new value)
@@ -217,6 +220,7 @@ public class Interpreter implements ASTVisitor {
 
     /**
      * Do-while loop: "run" executes body at least once then checks condition.
+     *
      * @param stmt run statement AST node
      * @return null
      */
@@ -231,6 +235,7 @@ public class Interpreter implements ASTVisitor {
     /**
      * Handles return statements by throwing a Return exception.
      * Requires an explicit return value; missing value is an error.
+     *
      * @param stmt return statement AST node
      */
     @Override
@@ -243,6 +248,7 @@ public class Interpreter implements ASTVisitor {
 
     /**
      * Prints the value of an expression to standard output.
+     *
      * @param stmt print statement AST node
      * @return null
      */
@@ -253,15 +259,22 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
+    /**
+     * Define function and store in the symbol table.
+     *
+     * @param stmt print statement AST node
+     * @return null
+     */
     @Override
     public Object visitFunctionDeclarationStatement(FunctionDeclarationStatement stmt) {
         defineFunction(stmt.getName(), stmt);
-        symbolTable.define(stmt.getName(), stmt); // Store in symbol table for lookup
+        symbolTable.define(stmt.getName(), stmt);
         return null;
     }
 
     /**
      * Loops while condition is non-zero, similar to classic while.
+     *
      * @param stmt while statement AST node
      * @return null
      */
@@ -275,6 +288,7 @@ public class Interpreter implements ASTVisitor {
 
     /**
      * Direct utility method for calling user functions outside AST.
+     *
      * @param name function name
      * @param args argument list
      * @return integer result
