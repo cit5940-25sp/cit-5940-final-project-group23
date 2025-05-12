@@ -109,46 +109,13 @@ public class Interpreter implements ASTVisitor {
      */
     @Override
     public Object visitCallExpression(CallExpression expr) {
-        String name = expr.getCallee();
-        // 1) Evaluate argument expressions
+        // Eval args
         List<Integer> argValues = new ArrayList<>();
         for (Expression arg : expr.getArguments()) {
             argValues.add((Integer) arg.accept(this));
         }
-
-        // 2) Built‐ins take precedence
-        if (Builtins.isBuiltin(name)) {
-            return Builtins.callFunction(name, argValues);
-        }
-
-        // 3) Otherwise user‐defined functions
-        FunctionDeclarationStatement fnDecl = symbolTable.lookup(name);
-        if (fnDecl == null) {
-            throw new RuntimeException("Undefined function '" + name + "'");
-        }
-
-        // 4) Push new scope & bind params
-        environment.enterScope();
-        for (int i = 0; i < fnDecl.getParameters().size(); i++) {
-            environment.declare(
-                    fnDecl.getParameters().get(i),
-                    argValues.get(i)
-            );
-        }
-
-        Object result;
-        try {
-            for (Statement stmt : fnDecl.getBody()) {
-                stmt.accept(this);
-            }
-            result = 0;                      // default if no return
-        } catch (Return r) {
-            result = r.value;               // actual return
-        } finally {
-            environment.exitScope();
-        }
-
-        return result;
+        // Delegate everything to callFunction()
+        return callFunction(expr.getCallee(), argValues);
     }
 
     /**
@@ -312,30 +279,32 @@ public class Interpreter implements ASTVisitor {
      * @param args argument list
      * @return integer result
      */
-    public void callFunction(String name, List<Integer> args) {
+    public Object callFunction(String name, List<Integer> args) {
         if (Builtins.isBuiltin(name)) {
-            Builtins.callFunction(name, args);
-            return;
+            return Builtins.callFunction(name, args);
         }
-        FunctionDeclarationStatement function = symbolTable.lookup(name);
-        if (function == null) {
-            throw new RuntimeException("Function not defined: " + name);
-        }
-        if (function.getParameters().size() != args.size()) {
+        FunctionDeclarationStatement fn = symbolTable.lookup(name);
+        if (fn == null) throw new RuntimeException("Function not defined: " + name);
+        if (fn.getParameters().size() != args.size())
             throw new RuntimeException("Argument count mismatch in call to: " + name);
-        }
 
         environment.enterScope();
         for (int i = 0; i < args.size(); i++) {
-            environment.declare(function.getParameters().get(i), args.get(i));
+            environment.declare(fn.getParameters().get(i), args.get(i));
         }
 
-        for (Statement stmt : function.getBody()) {
-            stmt.accept(this);
-            if (stmt instanceof ReturnStatement) {
-                break;
+        Object result;
+        try {
+            for (Statement stmt : fn.getBody()) {
+                stmt.accept(this);
             }
+            result = 0;
+        } catch (Return r) {
+            result = r.value;
+        } finally {
+            environment.exitScope();
         }
-        environment.exitScope();
+
+        return result;
     }
 }
