@@ -96,45 +96,38 @@ public class Parser {
     private Statement varDeclaration() {
         // Get the starting line number for the declaration
         int line = previous().getLine();
-        
+
         // Parse the first variable declarator
         Token name = consume(TokenType.IDENTIFIER, "Expect variable name after 'var'.");
-        
+
         // Check if variable is already defined in this scope
-        if (symbolTable.isDefined(name.getValue())) {
+        if (symbolTable.isVariableDefined(name.getValue())) {
             throw error(name, "Variable '" + name.getValue() + "' already declared in this scope.");
         }
-        
+
         consume(TokenType.ASSIGN, "Expect '<-' after variable name in declaration.");
         Expression initializer = expression();
-        
+
         // Register the variable in the symbol table
-        symbolTable.define(name.getValue());
-        
+        symbolTable.defineVariable(name.getValue(), null); // Use null since actual value goes to Environment
+
         // Create a list to hold all the declarations
         List<VarDeclarator> declarators = new ArrayList<>();
         declarators.add(new VarDeclarator(name.getValue(), initializer));
-        
+
         // Check for additional declarators
         while (match(TokenType.COMMA)) {
-            // Parse the next variable declarator
             name = consume(TokenType.IDENTIFIER, "Expect variable name after ','.");
-            
-            // Check if variable is already defined in this scope
-            if (symbolTable.isDefined(name.getValue())) {
+            if (symbolTable.isVariableDefined(name.getValue())) {
                 throw error(name, "Variable '" + name.getValue() + "' already declared in this scope.");
             }
-            
+
             consume(TokenType.ASSIGN, "Expect '<-' after variable name in declaration.");
             initializer = expression();
-            
-            // Register the variable in the symbol table
-            symbolTable.define(name.getValue());
-            
-            // Add to the list of declarators
+            symbolTable.defineVariable(name.getValue(), null);
             declarators.add(new VarDeclarator(name.getValue(), initializer));
         }
-        
+
         return new VarDeclarationStatement(declarators, line);
     }
 
@@ -359,27 +352,29 @@ public class Parser {
      */
     private Statement functionDeclaration() {
         Token name = consume(TokenType.IDENTIFIER, "Expect function name.");
-        
+
         consume(TokenType.LPAREN, "Expect '(' after function name.");
-        
+
         List<String> parameters = new ArrayList<>();
         if (!check(TokenType.RPAREN)) {
             do {
                 parameters.add(consume(TokenType.IDENTIFIER, "Expect parameter name.").getValue());
             } while (match(TokenType.COMMA));
         }
-        
+
         consume(TokenType.RPAREN, "Expect ')' after parameters.");
-        
-        // Parse function body (a block of statements)
+
         consume(TokenType.LBRACE, "Expect '{' before function body.");
         List<Statement> body = block();
 
-        // Register the function in the symbol table
-        symbolTable.defineFunction(name.getValue(), parameters.size());
-        
-        return new FunctionDeclarationStatement(name.getValue(), parameters, body, name.getLine());
+        FunctionDeclarationStatement declaration = new FunctionDeclarationStatement(name.getValue(), parameters, body, name.getLine());
+
+        // ✅ Register the full function declaration, not just its arity
+        symbolTable.define(name.getValue(), declaration);
+
+        return declaration;
     }
+
 
     /**
      * Grammar rule: ifStmt → "if" "(" expression ")" block ("elif" "(" expression ")" block)* ("else" block)?

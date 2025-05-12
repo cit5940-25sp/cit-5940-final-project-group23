@@ -2,10 +2,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class InterpreterTest {
+public class InterpreterTest extends Interpreter {
     private Interpreter interpreter;
 
     @Before
@@ -88,24 +89,88 @@ public class InterpreterTest {
         assertEquals(25, expr.accept(interpreter));
     }
 
+    @Test
+    public void testPrintStatement() {
+        Interpreter interpreter = new Interpreter();
+        Statement stmt = new PrintStatement(new LiteralExpression(99, 1), 1);
+        stmt.accept(interpreter); // prints 99
+    }
 
     @Test
-    public void testAssignmentExpression() {
+    public void testVarDeclarationStatement() {
+        Interpreter interpreter = new Interpreter();
         interpreter.enterScope();
-        Expression assign = new AssignmentExpression("x", new LiteralExpression(20, 1), 1);
-        assign.accept(interpreter);
-        Expression variable = new VariableExpression("x", 1);
-        assertEquals(20, variable.accept(interpreter));
+        List<VarDeclarator> decls = List.of(new VarDeclarator("a", new LiteralExpression(7, 1)));
+        Statement stmt = new VarDeclarationStatement(decls, 1);
+        stmt.accept(interpreter);
+        assertEquals(7, interpreter.environment.lookup("a"));
         interpreter.exitScope();
     }
 
     @Test
-    public void testBuiltinFunctionPrint() {
-        Expression call = new CallExpression(
-                new VariableExpression("print", 1),
-                Arrays.asList(new LiteralExpression(1130, 1)),
+    public void testIfStatement() {
+        Interpreter interpreter = new Interpreter();
+        interpreter.enterScope();
+
+        // Declare variable first
+        interpreter.environment.declare("flag", 0);
+
+        Expression condition = new LiteralExpression(1, 1);
+        Statement body = new VarAssignmentStatement("flag", new LiteralExpression(1, 1), 1);
+        IfStatement ifStmt = new IfStatement(
+                condition,
+                List.of(body),
+                List.of(),
+                List.of(),
+                List.of(),
                 1
         );
-        assertEquals(1130, call.accept(interpreter));
+        ifStmt.accept(interpreter);
+
+        assertEquals(1, interpreter.environment.lookup("flag"));
+        interpreter.exitScope();
+    }
+
+
+    @Test
+    public void testWhileStatement() {
+        Interpreter interpreter = new Interpreter();
+        interpreter.enterScope();
+
+        interpreter.environment.declare("x", 0);
+
+        Expression condition = new BinaryExpression(
+                new VariableExpression("x", 1),
+                TokenType.LT,
+                new LiteralExpression(3, 1),
+                1
+        );
+
+        Statement bodyStmt = new VarAssignmentStatement(
+                "x",
+                new BinaryExpression(
+                        new VariableExpression("x", 1),
+                        TokenType.PLUS,
+                        new LiteralExpression(1, 1),
+                        1
+                ),
+                1
+        );
+
+        WhileStatement whileStmt = new WhileStatement(condition, List.of(bodyStmt), 1);
+        whileStmt.accept(interpreter);
+
+        assertEquals(3, interpreter.environment.lookup("x"));
+        interpreter.exitScope();
+    }
+
+    @Test
+    public void testReturnStatement() {
+        Interpreter interpreter = new Interpreter();
+
+        ReturnStatement stmt = new ReturnStatement(new LiteralExpression(5, 1), 1);
+        Object result = stmt.accept(interpreter);
+
+        assertEquals(5, result);
     }
 }

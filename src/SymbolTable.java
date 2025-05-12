@@ -3,25 +3,25 @@ import java.util.Map;
 
 public class SymbolTable {
     private final Map<String, Object> symbols = new HashMap<>();
-    private final Map<String, Integer> functions = new HashMap<>(); 
-    public void define(String name) {
-        symbols.put(name, null);
-    }
-    
-    public boolean isDefined(String name) {
-        return symbols.containsKey(name);
+    private final Map<String, FunctionDeclarationStatement> functions = new HashMap<>();
+
+    public void define(String name, FunctionDeclarationStatement declaration) {
+        functions.put(name, declaration);
     }
 
-    // Function methods
-    public void defineFunction(String name, int arity) {
-        functions.put(name, arity);
-    }
-    
-    public boolean isFunctionDefined(String name) {
+    public boolean isDefined(String name) {
         return functions.containsKey(name);
     }
-    
-    public int getFunctionArity(String name) {
-        return functions.getOrDefault(name, -1);
+
+    public FunctionDeclarationStatement lookup(String name) {
+        return functions.get(name);
+    }
+
+    public void defineVariable(String name, Object value) {
+        symbols.put(name, value);
+    }
+
+    public boolean isVariableDefined(String name) {
+        return symbols.containsKey(name);
     }
 }
