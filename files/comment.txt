@@ -1,0 +1,5 @@
+function entry() {
+  var x <- 1;---comment at EOL
+  var y <- 2;
+  print x + y; --- final comment
+}

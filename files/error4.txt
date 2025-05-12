@@ -1,0 +1,3 @@
+function entry() {
+  var 123num <- 2; --- invalid variable
+}
