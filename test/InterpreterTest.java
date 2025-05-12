@@ -1,17 +1,29 @@
+import junit.framework.JUnit4TestAdapter;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class InterpreterTest extends Interpreter {
     private Interpreter interpreter;
+    private ByteArrayOutputStream outContent;
+    private final PrintStream originalOut = System.out;
 
     @Before
     public void setUp() {
         interpreter = new Interpreter();
+    }
+
+    @After
+    public void tearDown() {
+        System.setOut(originalOut);
+        interpreter.exitScope();
     }
 
     @Test
@@ -108,6 +120,30 @@ public class InterpreterTest extends Interpreter {
     }
 
     @Test
+    public void testVarAssignmentStatement() {
+        interpreter.environment.declare("z", 0);
+        Statement stmt = new VarAssignmentStatement(
+                "z",
+                new LiteralExpression(77,1),
+                1
+        );
+        stmt.accept(interpreter);
+        assertEquals(77, interpreter.environment.lookup("z"));
+    }
+
+    @Test
+    public void testExpressionStatement() {
+        Expression expr = new BinaryExpression(
+                new LiteralExpression(8,1),
+                TokenType.PLUS,
+                new LiteralExpression(2,1),
+                1
+        );
+        Statement stmt = new ExpressionStatement(expr, 1);
+        assertEquals(10, stmt.accept(interpreter));
+    }
+
+    @Test
     public void testIfStatement() {
         Interpreter interpreter = new Interpreter();
         interpreter.enterScope();
@@ -131,6 +167,26 @@ public class InterpreterTest extends Interpreter {
         interpreter.exitScope();
     }
 
+    @Test
+    public void testIfStatementElseBranch() {
+        // if (0) then ... else b <- 9
+        interpreter.environment.declare("b", 0);
+        Expression cond = new LiteralExpression(0,1);
+        Statement elseStmt = new VarAssignmentStatement(
+                "b",
+                new LiteralExpression(9,1),
+                1
+        );
+        IfStatement ifStmt = new IfStatement(
+                cond,
+                List.of(),
+                List.of(), List.of(),
+                List.of(elseStmt),
+                1
+        );
+        ifStmt.accept(interpreter);
+        assertEquals(9, interpreter.environment.lookup("b"));
+    }
 
     @Test
     public void testWhileStatement() {
@@ -165,12 +221,166 @@ public class InterpreterTest extends Interpreter {
     }
 
     @Test
-    public void testReturnStatement() {
-        Interpreter interpreter = new Interpreter();
-
-        ReturnStatement stmt = new ReturnStatement(new LiteralExpression(5, 1), 1);
-        Object result = stmt.accept(interpreter);
-
-        assertEquals(5, result);
+    public void testRunStatement() {
+        interpreter.environment.declare("n", 0);
+        Statement body = new VarAssignmentStatement(
+                "n",
+                new LiteralExpression(2,1),
+                1
+        );
+        RunStatement run = new RunStatement(List.of(body),
+                new BinaryExpression(
+                        new VariableExpression("n",1),
+                        TokenType.LT,
+                        new LiteralExpression(2,1),
+                        1
+                ),
+                1
+        );
+        run.accept(interpreter);
+        assertEquals(2, interpreter.environment.lookup("n"));
     }
+
+    @Test(expected = Interpreter.Return.class)
+    public void testVisitReturnStatementThrows() {
+        Statement ret = new ReturnStatement(new LiteralExpression(123,1), 1);
+        ret.accept(interpreter);
+    }
+
+    @Test
+    public void testFunctionDeclarationAndCall() {
+        FunctionDeclarationStatement fn = new FunctionDeclarationStatement(
+                "inc",
+                List.of("x"),
+                List.of(new ReturnStatement(
+                        new BinaryExpression(
+                                new VariableExpression("x",1),
+                                TokenType.PLUS,
+                                new LiteralExpression(1,1),
+                                1
+                        ),
+                        1
+                )),
+                1
+        );
+        fn.accept(interpreter);
+        Object result = interpreter.callFunction("inc", List.of(5));
+        assertEquals(6, result);
+    }
+
+    @Test
+    public void testCallBuiltinsInput() {
+        System.setIn(new ByteArrayInputStream("42\n".getBytes()));
+        Expression in = new InputExpression(1);
+        assertEquals(42, in.accept(interpreter));
+    }
+    
+    @Test
+    public void testCallBuiltinsPrint() {
+        Expression call = new CallExpression(
+                "print",
+                List.of(new LiteralExpression(7,1)),
+                1
+        );
+        Object r = call.accept(interpreter);
+        assertEquals(7, r);
+    }
+
+    @Test
+    public void testBuiltinAbs() {
+        // positive
+        Expression exprPos = new CallExpression("abs", List.of(new LiteralExpression(5,1)), 1);
+        assertEquals(5, exprPos.accept(interpreter));
+        // negative
+        Expression exprNeg = new CallExpression("abs", List.of(new LiteralExpression(-7,1)), 1);
+        assertEquals(7, exprNeg.accept(interpreter));
+    }
+
+    @Test
+    public void testBuiltinMax() {
+        Expression expr = new CallExpression(
+                "max",
+                List.of(new LiteralExpression(4,1), new LiteralExpression(9,1)),
+                1
+        );
+        assertEquals(9, expr.accept(interpreter));
+
+        // reversed args
+        Expression expr2 = new CallExpression(
+                "max",
+                List.of(new LiteralExpression(12,1), new LiteralExpression(3,1)),
+                1
+        );
+        assertEquals(12, expr2.accept(interpreter));
+    }
+
+    @Test
+    public void testBuiltinMin() {
+        Expression expr = new CallExpression(
+                "min",
+                List.of(new LiteralExpression(4,1), new LiteralExpression(9,1)),
+                1
+        );
+        assertEquals(4, expr.accept(interpreter));
+
+        Expression expr2 = new CallExpression(
+                "min",
+                List.of(new LiteralExpression(12,1), new LiteralExpression(3,1)),
+                1
+        );
+        assertEquals(3, expr2.accept(interpreter));
+    }
+
+
+    //Edges Case
+    @Test
+    public void testBuiltinAbsZero() {
+        Expression expr = new CallExpression("abs", List.of(new LiteralExpression(0, 1)), 1);
+        assertEquals(0, expr.accept(interpreter));
+    }
+
+    @Test
+    public void testBuiltinMaxEqualArgs() {
+        Expression expr = new CallExpression(
+                "max",
+                List.of(new LiteralExpression(5, 1), new LiteralExpression(5, 1)),
+                1
+        );
+        assertEquals(5, expr.accept(interpreter));
+    }
+
+    @Test
+    public void testBuiltinMinEqualArgs() {
+        Expression expr = new CallExpression(
+                "min",
+                List.of(new LiteralExpression(7, 1), new LiteralExpression(7, 1)),
+                1
+        );
+        assertEquals(7, expr.accept(interpreter));
+    }
+
+    /** Calling an undefined function should throw */
+    @Test(expected = RuntimeException.class)
+    public void testUndefinedFunctionThrows() {
+        new CallExpression("noSuchFunc", List.of(), 1).accept(interpreter);
+    }
+
+    /** Referencing an undeclared variable should throw */
+    @Test(expected = RuntimeException.class)
+    public void testVariableLookupError() {
+        new VariableExpression("undefVar", 1).accept(interpreter);
+    }
+
+    /** Division by zero should throw ArithmeticException */
+    @Test(expected = ArithmeticException.class)
+    public void testDivisionByZero() {
+        Expression expr = new BinaryExpression(
+                new LiteralExpression(5, 1),
+                TokenType.SLASH,
+                new LiteralExpression(0, 1),
+                1
+        );
+        expr.accept(interpreter);
+    }
+
 }
