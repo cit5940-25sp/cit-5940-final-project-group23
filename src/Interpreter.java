@@ -248,6 +248,11 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
+    /**
+     * Do-while loop: "run" executes body at least once then checks condition.
+     * @param stmt run statement AST node
+     * @return null
+     */
     @Override
     public Object visitRunStatement(RunStatement stmt) {
         do {
@@ -256,6 +261,11 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
+    /**
+     * Handles return statements by throwing a Return exception.
+     * Requires an explicit return value; missing value is an error.
+     * @param stmt return statement AST node
+     */
     @Override
     public Object visitReturnStatement(ReturnStatement stmt) {
         int returnValue = (stmt.getValue() == null)
@@ -264,6 +274,11 @@ public class Interpreter implements ASTVisitor {
         throw new Return(returnValue);
     }
 
+    /**
+     * Prints the value of an expression to standard output.
+     * @param stmt print statement AST node
+     * @return null
+     */
     @Override
     public Object visitPrintStatement(PrintStatement stmt) {
         Object value = stmt.getExpression().accept(this);
@@ -278,7 +293,11 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
-
+    /**
+     * Loops while condition is non-zero, similar to classic while.
+     * @param stmt while statement AST node
+     * @return null
+     */
     @Override
     public Object visitWhileStatement(WhileStatement stmt) {
         while ((int) stmt.getCondition().accept(this) != 0) {
@@ -287,6 +306,12 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
+    /**
+     * Direct utility method for calling user functions outside AST.
+     * @param name function name
+     * @param args argument list
+     * @return integer result
+     */
     public void callFunction(String name, List<Integer> args) {
         if (Builtins.isBuiltin(name)) {
             Builtins.callFunction(name, args);
