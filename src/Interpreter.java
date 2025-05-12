@@ -1,8 +1,9 @@
 import java.util.*;
 
 /**
- * Interpreter implements the ASTVisitor to interpret parsed expressions.
- * It uses an Environment for variable storage and supports function calls.
+ * Interpreter implements the ASTVisitor pattern to interpret parsed SPROLA code.
+ * It uses an Environment for runtime variable bindings and a SymbolTable
+ * for tracking user-defined functions and declarations at parse time.
  */
 public class Interpreter implements ASTVisitor {
     protected final Environment environment = new Environment();
@@ -21,8 +22,8 @@ public class Interpreter implements ASTVisitor {
     }
 
     /**
-     * Evaluates binary expressions (e.g., a + b, x == y).
-     *
+     * Evaluates binary expressions using a switch on the operator.
+     * Implements the Visitor pattern for BinaryExpression nodes.
      * @param expr binary expression
      * @return the result of the binary calculation
      */
@@ -78,7 +79,7 @@ public class Interpreter implements ASTVisitor {
     }
 
     /**
-     * visit the value of a literal expression.
+     * Returns the value of a literal node (numbers).
      *
      * @param expr literal expression variable
      * @return the value of literal expression
@@ -89,7 +90,7 @@ public class Interpreter implements ASTVisitor {
     }
 
     /**
-     * visit the reference of a variable or returns its name.
+     * Resolves variable references or built-in names.
      *
      * @param expr Variable expression
      * @return the value/name of the variable expression
@@ -114,8 +115,8 @@ public class Interpreter implements ASTVisitor {
     }
 
     /**
-     * Evaluates function calls (includes built-in functions).
-     *
+     * Handles function calls (built-in and user-defined).
+     * Demonstrates the use of the Visitor pattern for CallExpression.
      * @param expr call expression
      * @return pass the evaluated functionName and args to callFunction
      */
@@ -176,8 +177,8 @@ public class Interpreter implements ASTVisitor {
         return scanner.nextInt();
     }
 
-    /**
-     * Evaluates declaration statement and updates the environment.
+     /**
+     * Declares variables at runtime and registers them in the symbol table for parser checks.
      *
      * @param stmt declaration statement var
      * @return null (declaration does not generate values, we only need to update the environment)
@@ -228,6 +229,9 @@ public class Interpreter implements ASTVisitor {
         environment.exitScope();
     }
 
+    /**
+     * Exception used for early return control flow in functions.
+     */
     public static class Return extends RuntimeException {
         public final int value;
         public Return(int value) {
@@ -237,7 +241,7 @@ public class Interpreter implements ASTVisitor {
     }
 
     /**
-     * Evaluate if statement
+     * Implements if-elif-else logic.
      *
      * @param stmt if statement var
      * @return null (if is an action, and does not generate new value)
@@ -260,6 +264,11 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
+    /**
+     * Do-while loop: "run" executes body at least once then checks condition.
+     * @param stmt run statement AST node
+     * @return null
+     */
     @Override
     public Object visitRunStatement(RunStatement stmt) {
         do {
@@ -268,6 +277,11 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
+    /**
+     * Handles return statements by throwing a Return exception.
+     * @param stmt return statement AST node
+     * @return never returns normally (exception used)
+     */
     @Override
     public Object visitReturnStatement(ReturnStatement stmt) {
         int returnValue = (stmt.getValue() == null)
@@ -276,6 +290,11 @@ public class Interpreter implements ASTVisitor {
         throw new Return(returnValue);
     }
 
+    /**
+     * Prints the value of an expression to standard output.
+     * @param stmt print statement AST node
+     * @return null
+     */
     @Override
     public Object visitPrintStatement(PrintStatement stmt) {
         Object value = stmt.getExpression().accept(this);
@@ -290,7 +309,11 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
-
+    /**
+     * Loops while condition is non-zero, similar to classic while.
+     * @param stmt while statement AST node
+     * @return null
+     */
     @Override
     public Object visitWhileStatement(WhileStatement stmt) {
         while ((int) stmt.getCondition().accept(this) != 0) {
@@ -299,6 +322,12 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
+    /**
+     * Direct utility method for calling user functions outside AST.
+     * @param name function name
+     * @param args argument list
+     * @return integer result
+     */
     public int callFunction(String name, List<Integer> args) {
         if (Builtins.isBuiltin(name)) {
             return Builtins.callFunction(name, args);
