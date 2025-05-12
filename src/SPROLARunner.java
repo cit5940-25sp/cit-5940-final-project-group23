@@ -10,7 +10,6 @@ public class SPROLARunner {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        System.out.println(args.length);
         if (args.length != 1) {
             System.err.println("Invalid number of arguments");
             System.exit(1);

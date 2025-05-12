@@ -121,12 +121,46 @@ public class Interpreter implements ASTVisitor {
      */
     @Override
     public Object visitCallExpression(CallExpression expr) {
-        String functionName = expr.getCallee();
-        List<Integer> args = new ArrayList<>();
+        String name = expr.getCallee();
+        // 1) Evaluate argument expressions
+        List<Integer> argValues = new ArrayList<>();
         for (Expression arg : expr.getArguments()) {
-            args.add((int) arg.accept(this));
+            argValues.add((Integer) arg.accept(this));
         }
-        return callFunction(functionName, args);
+
+        // 2) Built‐ins take precedence
+        if (Builtins.isBuiltin(name)) {
+            return Builtins.callFunction(name, argValues);
+        }
+
+        // 3) Otherwise user‐defined functions
+        FunctionDeclarationStatement fnDecl = symbolTable.lookup(name);
+        if (fnDecl == null) {
+            throw new RuntimeException("Undefined function '" + name + "'");
+        }
+
+        // 4) Push new scope & bind params
+        environment.enterScope();
+        for (int i = 0; i < fnDecl.getParameters().size(); i++) {
+            environment.declare(
+                    fnDecl.getParameters().get(i),
+                    argValues.get(i)
+            );
+        }
+
+        Object result;
+        try {
+            for (Statement stmt : fnDecl.getBody()) {
+                stmt.accept(this);
+            }
+            result = 0;                      // default if no return
+        } catch (Return r) {
+            result = r.value;               // actual return
+        } finally {
+            environment.exitScope();
+        }
+
+        return result;
     }
 
     /**
@@ -194,6 +228,15 @@ public class Interpreter implements ASTVisitor {
         environment.exitScope();
     }
 
+    // FIXME
+    public static class Return extends RuntimeException {
+        public final int value;
+        public Return(int value) {
+            super(null, null, false, false);
+            this.value = value;
+        }
+    }
+
     /**
      * Evaluate if statement
      *
@@ -228,10 +271,10 @@ public class Interpreter implements ASTVisitor {
 
     @Override
     public Object visitReturnStatement(ReturnStatement stmt) {
-        if (stmt.hasValue()) {
-            return stmt.getValue().accept(this);
-        }
-        return 0;
+        int returnValue = (stmt.getValue() == null)
+                ? 0
+                : (Integer) stmt.getValue().accept(this);
+        throw new Return(returnValue);
     }
 
     @Override

@@ -21,8 +21,6 @@ public class Parser {
      * @throws ParseError if there is a syntax error
      */
     public Statement parse() throws ParseError {
-
-        System.out.println("TRACE: parse() called");
         // let the error propagate
         return statement();
     }
@@ -31,8 +29,6 @@ public class Parser {
      * Grammar rule: statement → varDeclaration | functionDecl | varAssignment | ifStmt | whileStmt | runStmt | returnStmt | expressionStmt
      */
     private Statement statement() {
-        System.out.println("TRACE: statement() called with token type: " + peek().getType());
-        
         // Handle keyword statements
         if (match(TokenType.VAR)) {
             return varDeclaration();
@@ -165,7 +161,6 @@ public class Parser {
      */
     private Statement expressionStatement() {
         Expression expr = expression();
-        System.out.println("TRACE: expressionStatement() called");
         consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         return new ExpressionStatement(expr, expr.getLine());
     }
@@ -257,7 +252,6 @@ public class Parser {
      * call → IDENTIFIER "(" arguments? ")"
      */
     private Expression primary() {
-        System.out.println("DEBUG: primary() called with token type: " + peek().getType());
         if (match(TokenType.NUMBER)) {
             return ExpressionFactory.createNumberLiteral(previous().getValue(), previous().getLine());
         }
@@ -269,11 +263,7 @@ public class Parser {
         
         if (match(TokenType.IDENTIFIER)) {
             Token token = previous();
-            System.out.println("Found identifier: " + token.getValue());
-            System.out.println("Next token type: " + peek().getType());
-            System.out.println("Is LPAREN check: " + check(TokenType.LPAREN));
-            
-            
+
             // Check if this is a function call
             if (check(TokenType.LPAREN)) {
                 return finishCall(token);
@@ -297,7 +287,6 @@ public class Parser {
      */
     private Expression finishCall(Token callee) {
         List<Expression> arguments = new ArrayList<>();
-        System.out.println("Parsing function call: " + callee.getValue());
         // Parse the arguments
         consume(TokenType.LPAREN, "Expect '(' after function name.");
         if (!check(TokenType.RPAREN)) {
@@ -492,8 +481,6 @@ public class Parser {
      * Helper method for error reporting
      */
     private ParseError error(Token token, String message) {
-        System.err.println("[line " + token.getLine() + "] Error at '" + 
-                          token.getValue() + "': " + message);
         return new ParseError(message);
     }
 
