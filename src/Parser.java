@@ -306,7 +306,7 @@ public class Parser {
             } while (match(TokenType.COMMA));
         }
         
-        Token paren = consume(TokenType.RPAREN, "Expect ')' after arguments.");
+        consume(TokenType.RPAREN, "Expect ')' after arguments.");
 
         return ExpressionFactory.createCall(callee.getValue(), arguments, callee.getLine());
     }
@@ -503,10 +503,6 @@ public class Parser {
     public static class ParseError extends RuntimeException {
         public ParseError(String message) {
             super(message);
-        }
-
-        public ParseError() {
-            super();
         }
     }
 }
