@@ -83,7 +83,7 @@ public class Parser {
         return expressionStatement();
     }
 
-    // Add this helper method
+    // this helper method helps solve function calls
     private boolean checkAhead(int distance, TokenType type) {
         if (current + distance >= tokens.size()) return false;
         return tokens.get(current + distance).getType() == type;
@@ -116,8 +116,10 @@ public class Parser {
         declarators.add(new VarDeclarator(name.getValue(), initializer));
 
         // Check for additional declarators
+        // this enables declearing multiple variables in one line
         while (match(TokenType.COMMA)) {
             name = consume(TokenType.IDENTIFIER, "Expect variable name after ','.");
+            // here var x <- 4, x <- 3; is invalid grammer
             if (symbolTable.isVariableDefined(name.getValue())) {
                 throw error(name, "Variable '" + name.getValue() + "' already declared in this scope.");
             }
@@ -313,7 +315,7 @@ public class Parser {
 
     /**
      * Grammar rule: runStmt → "run" block "while" "(" expression ")"
-     * This is the do-while loop construct in your language
+     * This is the do-while loop construct in the language
      */
     private Statement runStatement() {
         Token keyword = previous();
