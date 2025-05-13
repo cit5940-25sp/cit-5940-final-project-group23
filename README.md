@@ -12,6 +12,9 @@ arithmetic, variables, and functions.
 ## Optional Feature
 Exception Handling
 
+## UML Diagram
+![UML Diagram](https://drive.google.com/file/d/1OQ65DRrryY1HP08EnzqDukP14_gCxWpj/view?usp=drive_link)
+
 ## References
 1. [Step-by-Step: Building a Lexer in Java for Tokenizing Source Code](https://medium.com/@enzojade62/step-by-step-building-a-lexer-in-java-for-tokenizing-source-code-ac4f1d91326f)
 2. [Crafting Interpreters](https://craftinginterpreters.com/)
