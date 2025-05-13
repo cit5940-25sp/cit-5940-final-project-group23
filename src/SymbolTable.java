@@ -26,7 +26,7 @@ public class SymbolTable {
         }
     }
     
-    // This is the missing method your Interpreter uses
+    // This is the missing method the Interpreter uses
     public void define(String name, Object value) {
         // For functions, store in the functions map
         getCurrentScope().functions.put(name, value);
