@@ -24,5 +24,5 @@ Exception Handling
 6. [ASTNode](https://docs.spring.io/spring-shell/docs/current/api/org/springframework/shell/command/parser/AstNode.html)
 7. [Interpreter Tutorial in Python](https://www.youtube.com/watch?v=YYvBy0vqcSw)
 8. [Expressions and Statements](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html)
-9.  > **ChatGPT** (by OpenAI) was used to provide insights into overall design decisions, refactor suggestions, and ideas for test cases.  
-> **GitHub Copilot** suggestions during implementation and conceptually correcting design patterns.
+9.  **ChatGPT** (by OpenAI) was used to provide insights into overall design decisions, refactor suggestions, and ideas for test cases.  
+10. **GitHub Copilot** suggestions during implementation and conceptually correcting design patterns.
