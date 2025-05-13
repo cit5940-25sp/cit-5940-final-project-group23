@@ -10,4 +10,4 @@
 5. [Javadocs](https://www.jetbrains.com/help/idea/javadocs.html)
 6. [ASTNode](https://docs.spring.io/spring-shell/docs/current/api/org/springframework/shell/command/parser/AstNode.html)
 7. [Interpreter Tutorial in Python](https://www.youtube.com/watch?v=YYvBy0vqcSw)
-   
+8. [Expressions and Statements]  (https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html).
