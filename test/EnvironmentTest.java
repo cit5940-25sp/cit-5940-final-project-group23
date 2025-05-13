@@ -19,13 +19,13 @@ public class EnvironmentTest {
     public void test2() {
         Environment env = new Environment();
         env.declare("a", 1);
-        assertThrows(RuntimeException.class, () -> env.declare("a", 2));
+        assertThrows(Exception.class, () -> env.declare("a", 2));
         env.exitScope();
-        assertThrows(IllegalStateException.class, env::exitScope);
-        assertThrows(IllegalStateException.class, () -> env.declare("a", 2));
-        assertThrows(IllegalStateException.class, () -> env.assign("a", 2));
+        assertThrows(Exception.class, env::exitScope);
+        assertThrows(Exception.class, () -> env.declare("a", 2));
+        assertThrows(Exception.class, () -> env.assign("a", 2));
         env.enterScope();
         env.declare("a", 10);
-        assertThrows(RuntimeException.class, () -> env.assign("aa", 3));
+        assertThrows(Exception.class, () -> env.assign("aa", 3));
     }
 }

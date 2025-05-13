@@ -11,7 +11,7 @@ public class LexerTest {
         assertEquals(TokenType.RPAREN, tokens.get(1).getType());
         assertEquals(TokenType.PLUS, tokens.get(2).getType());
         assertEquals(TokenType.NE, tokens.get(7).getType());
-        assertEquals(TokenType.EOF, tokens.get(tokens.size() - 1).getType());
+        assertEquals(TokenType.EOF, tokens.get(tokens.size()-1).getType());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class LexerTest {
         Lexer lexer = new Lexer("abs(-42)");
         List<Token> tokens = lexer.tokenize();
         
-        assertEquals(5, tokens.size() - 1);  // Subtract 1 for EOF token
+        assertEquals(5, tokens.size()-1);  // Subtract 1 for EOF token
         assertEquals(TokenType.IDENTIFIER, tokens.get(0).getType());
         assertEquals("abs", tokens.get(0).getValue());
         assertEquals(TokenType.LPAREN, tokens.get(1).getType());
