@@ -9,7 +9,7 @@ public class RunStatement extends Statement {
     private final Expression condition;
     
     public RunStatement(List<Statement> body, Expression condition, int line) {
-        super(line);
+        super(StatementType.RUN,line);
         this.body = body;
         this.condition = condition;
     }

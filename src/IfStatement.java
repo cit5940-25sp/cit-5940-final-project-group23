@@ -13,7 +13,7 @@ public class IfStatement extends Statement {
     public IfStatement(Expression condition, List<Statement> thenBranch, 
                       List<Expression> elifConditions, List<List<Statement>> elifBranches,
                       List<Statement> elseBranch, int line) {
-        super(line);
+        super(StatementType.IF,line);
         this.condition = condition;
         this.thenBranch = thenBranch;
         this.elifConditions = elifConditions;

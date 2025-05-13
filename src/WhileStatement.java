@@ -8,7 +8,7 @@ public class WhileStatement extends Statement {
     private final List<Statement> body;
     
     public WhileStatement(Expression condition, List<Statement> body, int line) {
-        super(line);
+        super(StatementType.WHILE,line);
         this.condition = condition;
         this.body = body;
     }

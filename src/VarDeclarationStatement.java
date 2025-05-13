@@ -7,7 +7,7 @@ public class VarDeclarationStatement extends Statement {
     private final List<VarDeclarator> declarators;
     
     public VarDeclarationStatement(List<VarDeclarator> declarators, int line) {
-        super(line);
+        super(StatementType.VAR_DECLARATION,line);
         this.declarators = declarators;
     }
     

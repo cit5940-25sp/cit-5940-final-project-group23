@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,7 +129,7 @@ public class Parser {
         }
         consume(TokenType.SEMICOLON, "Expect ';' after value in variable declaration.");
         
-        return StatementFactory.create("varDeclaration", declarators, line);
+        return StatementFactory.create(StatementType.VAR_DECLARATION, declarators, line);
     }
 
     /**
@@ -147,7 +146,7 @@ public class Parser {
         consume(TokenType.ASSIGN, "Expect '<-' after variable name.");
         Expression value = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after assignment.");
-        return StatementFactory.create("varAssignment", name.getValue(), value, name.getLine());
+        return StatementFactory.create(StatementType.VAR_ASSIGNMENT, name.getValue(), value, name.getLine());
         
     }
     /**
@@ -159,7 +158,7 @@ public class Parser {
         // Print is followed directly by an expression
         Expression value = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after value in print statement.");
-        return StatementFactory.create("print", value, keyword.getLine());
+        return StatementFactory.create(StatementType.PRINT, value, keyword.getLine());
     }
 
 
@@ -169,7 +168,7 @@ public class Parser {
     private Statement expressionStatement() {
         Expression expr = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after expression.");
-        return StatementFactory.create("expression", expr, expr.getLine());
+        return StatementFactory.create(StatementType.EXPRESSION, expr, expr.getLine());
     }
 
     /**
@@ -189,7 +188,7 @@ public class Parser {
         while (match(TokenType.EQ, TokenType.NE)) {
             TokenType operator = previous().getType();
             Expression right = comparison();
-            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create(ExpressionType.BINARY, expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -204,7 +203,7 @@ public class Parser {
         while (match(TokenType.LT, TokenType.LE, TokenType.GT, TokenType.GE)) {
             TokenType operator = previous().getType();
             Expression right = term();
-            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create(ExpressionType.BINARY, expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -219,7 +218,7 @@ public class Parser {
         while (match(TokenType.PLUS, TokenType.MINUS)) {
             TokenType operator = previous().getType();
             Expression right = factor();
-            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create(ExpressionType.BINARY, expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -234,7 +233,7 @@ public class Parser {
         while (match(TokenType.STAR, TokenType.SLASH, TokenType.MOD)) {
             TokenType operator = previous().getType();
             Expression right = unary();
-            expr = ExpressionFactory.create("binary", expr, operator, right, expr.getLine());
+            expr = ExpressionFactory.create(ExpressionType.BINARY, expr, operator, right, expr.getLine());
         }
 
         return expr;
@@ -248,7 +247,7 @@ public class Parser {
         if (match(TokenType.MINUS)) {
             TokenType operator = previous().getType();
             Expression right = unary();
-            return ExpressionFactory.create("unary", operator, right, right.getLine());
+            return ExpressionFactory.create(ExpressionType.UNARY, operator, right, right.getLine());
         }
 
         return primary();
@@ -259,11 +258,11 @@ public class Parser {
      */
     private Expression primary() {
         if (match(TokenType.NUMBER)) {
-            return ExpressionFactory.create("literal", previous().getValue(), previous().getLine());
+            return ExpressionFactory.create(ExpressionType.LITERAL, previous().getValue(), previous().getLine());
         }
         
         if (match(TokenType.INPUT)) {
-            return ExpressionFactory.create("input", previous().getLine());
+            return ExpressionFactory.create(ExpressionType.INPUT, previous().getLine());
         }
         
         if (match(TokenType.IDENTIFIER)) {
@@ -281,13 +280,13 @@ public class Parser {
             }
             
             // Otherwise it's a variable reference
-            return ExpressionFactory.create("variable", name, token.getLine());
+            return ExpressionFactory.create(ExpressionType.VARIABLE, name, token.getLine());
         }
 
         if (match(TokenType.LPAREN)) {
             Expression expr = expression();
             consume(TokenType.RPAREN, "Expect ')' after expression.");
-             return ExpressionFactory.create("group", expr, expr.getLine());
+             return ExpressionFactory.create(ExpressionType.GROUP, expr, expr.getLine());
         }
 
         throw error(peek(), "Expected expression.");
@@ -308,7 +307,7 @@ public class Parser {
         
         consume(TokenType.RPAREN, "Expect ')' after arguments.");
 
-       return ExpressionFactory.create("call", callee.getValue(), arguments, callee.getLine());
+       return ExpressionFactory.create(ExpressionType.CALL, callee.getValue(), arguments, callee.getLine());
     }
 
 
@@ -329,7 +328,7 @@ public class Parser {
         Expression condition = expression();
         consume(TokenType.RPAREN, "Expect ')' after condition.");
         consume(TokenType.SEMICOLON, "Expect ';' after run-while loop.");
-        return StatementFactory.create("run", body, condition, keyword.getLine());
+        return StatementFactory.create(StatementType.RUN, body, condition, keyword.getLine());
     }
 
     /**
@@ -345,7 +344,7 @@ public class Parser {
         consume(TokenType.LBRACE, "Expect '{' before while body.");
         List<Statement> body = block();
         
-        return StatementFactory.create("while", condition, body, keyword.getLine());
+        return StatementFactory.create(StatementType.WHILE, condition, body, keyword.getLine());
     }
 
     /**
@@ -377,7 +376,7 @@ public class Parser {
         try {
             List<Statement> body = block();
             
-            return StatementFactory.create("function", name.getValue(), parameters, body, name.getLine());
+            return StatementFactory.create(StatementType.FUNCTION, name.getValue(), parameters, body, name.getLine());
         } finally {
             // Exit function scope
             symbolTable.exitScope();
@@ -418,7 +417,8 @@ public class Parser {
             elseBranch = block();
         }
         
-        return StatementFactory.createIf(condition, thenBranch, elifConditions, elifBranches, elseBranch, keyword.getLine());
+        return StatementFactory.create(StatementType.IF, condition, thenBranch, 
+                             elifConditions, elifBranches, elseBranch, keyword.getLine());
     }
 
     /**
@@ -433,7 +433,7 @@ public class Parser {
             value = expression();
         }
         consume(TokenType.SEMICOLON, "Expect ';' after return value.");
-        return StatementFactory.createReturn(value, keyword.getLine());
+        return StatementFactory.create(StatementType.RETURN, value, keyword.getLine());
     }
 
     // Helper methods for parsing

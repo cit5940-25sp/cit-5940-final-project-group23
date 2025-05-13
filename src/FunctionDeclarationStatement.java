@@ -9,7 +9,7 @@ public class FunctionDeclarationStatement extends Statement {
     private final List<Statement> body;
     
     public FunctionDeclarationStatement(String name, List<String> parameters, List<Statement> body, int line) {
-        super(line);
+        super(StatementType.FUNCTION,line);
         this.name = name;
         this.parameters = parameters;
         this.body = body;

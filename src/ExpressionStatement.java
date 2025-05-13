@@ -6,7 +6,7 @@ public class ExpressionStatement extends Statement {
     private final Expression expression;
     
     public ExpressionStatement(Expression expression, int line) {
-        super(line);
+        super(StatementType.EXPRESSION,line);
         this.expression = expression;
     }
     

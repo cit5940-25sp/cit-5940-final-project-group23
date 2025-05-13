@@ -3,7 +3,7 @@ public class VarAssignmentStatement extends Statement {
     private final Expression value;
     
     public VarAssignmentStatement(String name, Expression value, int line) {
-        super(line);
+        super(StatementType.VAR_ASSIGNMENT,line);
         this.name = name;
         this.value = value;
     }

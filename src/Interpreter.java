@@ -153,6 +153,7 @@ public class Interpreter implements ASTVisitor {
      * @param stmt assignment var
      * @return null (assignment does not generate new variable)
      */
+    @Override
     public Object visitVarAssignmentStatement(VarAssignmentStatement stmt) {
         int value = (Integer) stmt.getValue().accept(this);
         environment.assign(stmt.getName(), value);
